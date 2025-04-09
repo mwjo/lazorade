@@ -39,10 +39,10 @@ const ProductRecommendations = () => {
   
   const advancedProducts = [
     {
-      name: "Maltodextrin Powder",
-      description: "Pure Carbohydrate - 2.2LB",
-      brand: "BulkSupplements",
-      link: "https://www.amazon.com/BulkSupplements-Maltodextrin-Powder-Kilogram-Packaging/dp/B00H7SNMN8",
+      name: "Organic Maltodextrin Powder",
+      description: "Gluten Free, Non-GMO - 1LB",
+      brand: "Nutricost",
+      link: "https://www.amazon.com/Nutricost-Organic-Maltodextrin-Powder-1lb/dp/B07YBK6DQP?sr=8-2-spons&sp_csd=d2lkZ2V0TmFtZT1zcF9hdGY",
       image: "/placeholder.svg"
     },
     {

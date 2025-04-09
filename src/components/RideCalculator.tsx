@@ -402,13 +402,12 @@ const RideCalculator = () => {
                           <SelectValue placeholder="Select carb ratio" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="maltodextrin-dominant">Maltodextrin-Dominant (2:1)</SelectItem>
+                          <SelectItem value="maltodextrin-dominant">Maltodextrin-Dominant (1:0.8)</SelectItem>
                           <SelectItem value="balanced">Balanced (1:1)</SelectItem>
-                          <SelectItem value="fructose-dominant">Fructose-Dominant (1:2)</SelectItem>
                         </SelectContent>
                       </Select>
                       <p className="text-xs text-muted-foreground mt-1">
-                        The ratio of maltodextrin to fructose affects absorption rate
+                        The ratio of glucose (maltodextrin) to fructose affects absorption rate
                       </p>
                     </div>
                     

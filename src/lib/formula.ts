@@ -1,4 +1,3 @@
-
 export interface FormulaParams {
   distance: number; // in km
   temperature: number; // in Celsius
@@ -7,7 +6,7 @@ export interface FormulaParams {
   bottleSize: number; // in ml
   // Advanced parameters
   isAdvanced?: boolean; // whether to use advanced formula calculation
-  carbRatio?: string; // 'maltodextrin-dominant' (2:1), 'balanced' (1:1), or 'fructose-dominant' (1:2)
+  carbRatio?: string; // 'maltodextrin-dominant' (1:0.8), 'balanced' (1:1)
   caffeineSensitivity?: string; // 'low', 'medium', 'high'
   carbAdaptation?: string; // 'low', 'medium', 'high'
   separateBottles?: boolean; // whether to separate hydration and fueling
@@ -104,10 +103,10 @@ export function calculateFormula(params: FormulaParams): FormulaResult {
   }
   
   // Split carbs based on the selected ratio
-  let maltodextrinRatio = 0.67; // Default 2:1 maltodextrin:fructose
+  let maltodextrinRatio = 0.56; // Default 1:0.8 maltodextrin:fructose (56% maltodextrin, 44% fructose)
   if (isAdvanced) {
-    if (carbRatio === "balanced") maltodextrinRatio = 0.5; // 1:1
-    if (carbRatio === "fructose-dominant") maltodextrinRatio = 0.33; // 1:2
+    if (carbRatio === "balanced") maltodextrinRatio = 0.5; // 1:1 (50% maltodextrin, 50% fructose)
+    // Only these two options are now available
   }
   
   let maltodextrinAmount = totalCarbs * maltodextrinRatio;
