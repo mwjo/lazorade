@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { 
   Card, 
@@ -45,12 +44,11 @@ import {
   Beaker,
   AlertCircle,
   Sparkles,
-  Flask
+  TestTube
 } from "lucide-react";
 import FormulaResult from "./FormulaResult";
 import { calculateFormula, FormulaResult as FormulaResultType } from "@/lib/formula";
 
-// Define the shape of settings we'll store
 interface SavedSettings {
   distance: number;
   temperature: number;
@@ -58,7 +56,6 @@ interface SavedSettings {
   intensity: string;
   bottleSize: number;
   isMetric: boolean;
-  // Advanced settings
   isAdvanced: boolean;
   carbRatio: string;
   caffeineSensitivity: string;
@@ -67,32 +64,28 @@ interface SavedSettings {
   formulaType: string;
 }
 
-// Storage key for localStorage
 const STORAGE_KEY = 'ride-fuel-calculator-settings';
 
 const RideCalculator = () => {
   const { toast } = useToast();
-  // Basic settings
+
   const [distance, setDistance] = useState<number>(20);
   const [temperature, setTemperature] = useState<number>(70);
   const [sweatRate, setSweatRate] = useState<string>("medium");
   const [intensity, setIntensity] = useState<string>("medium");
   const [bottleSize, setBottleSize] = useState<number>(750);
   const [isMetric, setIsMetric] = useState<boolean>(false);
-  
-  // Advanced settings
+
   const [isAdvanced, setIsAdvanced] = useState<boolean>(false);
   const [carbRatio, setCarbRatio] = useState<string>("maltodextrin-dominant");
   const [caffeineSensitivity, setCaffeineSensitivity] = useState<string>("medium");
   const [carbAdaptation, setCarbAdaptation] = useState<string>("medium");
   const [separateBottles, setSeparateBottles] = useState<boolean>(false);
   const [formulaType, setFormulaType] = useState<string>("isotonic");
-  
-  // Results
+
   const [formula, setFormula] = useState<FormulaResultType | null>(null);
   const [isAdvancedOpen, setIsAdvancedOpen] = useState<boolean>(false);
 
-  // Load saved settings from localStorage on component mount
   useEffect(() => {
     const savedSettings = localStorage.getItem(STORAGE_KEY);
     
@@ -100,7 +93,6 @@ const RideCalculator = () => {
       try {
         const parsedSettings: SavedSettings = JSON.parse(savedSettings);
         
-        // Update state with saved basic values
         setDistance(parsedSettings.distance);
         setTemperature(parsedSettings.temperature);
         setSweatRate(parsedSettings.sweatRate);
@@ -108,7 +100,6 @@ const RideCalculator = () => {
         setBottleSize(parsedSettings.bottleSize);
         setIsMetric(parsedSettings.isMetric);
         
-        // Update advanced values if they exist
         if ('isAdvanced' in parsedSettings) {
           setIsAdvanced(parsedSettings.isAdvanced);
           setCarbRatio(parsedSettings.carbRatio || "maltodextrin-dominant");
@@ -118,7 +109,6 @@ const RideCalculator = () => {
           setFormulaType(parsedSettings.formulaType || "isotonic");
         }
         
-        // Calculate formula with loaded settings
         setTimeout(() => {
           calculateResultWithCurrentSettings(
             parsedSettings.distance,
@@ -139,14 +129,11 @@ const RideCalculator = () => {
         console.error('Error loading saved settings:', error);
       }
     } else {
-      // No saved settings, calculate with defaults
       calculateResult();
     }
   }, []);
 
-  // Save settings to localStorage whenever they change
   useEffect(() => {
-    // Only save after initial load
     const settings: SavedSettings = {
       distance,
       temperature,
@@ -194,8 +181,8 @@ const RideCalculator = () => {
   ) => {
     try {
       const result = calculateFormula({
-        distance: currentIsMetric ? currentDistance : currentDistance * 1.60934, // Convert miles to km if needed
-        temperature: currentIsMetric ? currentTemperature : (currentTemperature - 32) * 5/9, // Convert F to C if needed
+        distance: currentIsMetric ? currentDistance : currentDistance * 1.60934,
+        temperature: currentIsMetric ? currentTemperature : (currentTemperature - 32) * 5/9,
         sweatRate: currentSweatRate,
         intensity: currentIntensity,
         bottleSize: currentBottleSize,
@@ -243,26 +230,22 @@ const RideCalculator = () => {
 
   const handleUnitToggle = () => {
     if (isMetric) {
-      // Convert from metric to imperial
       setDistance(Math.round(distance / 1.60934));
       setTemperature(Math.round(temperature * 9/5 + 32));
     } else {
-      // Convert from imperial to metric
       setDistance(Math.round(distance * 1.60934));
       setTemperature(Math.round((temperature - 32) * 5/9));
     }
     setIsMetric(!isMetric);
   };
-  
+
   const toggleAdvancedMode = () => {
     setIsAdvanced(!isAdvanced);
     
-    // If turning on advanced mode, set the advanced collapsible to open
     if (!isAdvanced) {
       setIsAdvancedOpen(true);
     }
     
-    // Recalculate with the new mode
     setTimeout(calculateResult, 0);
   };
 
@@ -412,7 +395,7 @@ const RideCalculator = () => {
                   <CollapsibleContent className="mt-4 space-y-4 px-2">
                     <div>
                       <Label htmlFor="carb-ratio" className="flex items-center gap-2 mb-2">
-                        <Flask className="h-4 w-4" /> Carbohydrate Ratio
+                        <TestTube className="h-4 w-4" /> Carbohydrate Ratio
                       </Label>
                       <Select value={carbRatio} onValueChange={setCarbRatio}>
                         <SelectTrigger id="carb-ratio">
