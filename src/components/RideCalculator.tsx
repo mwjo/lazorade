@@ -19,7 +19,19 @@ import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/components/ui/use-toast";
+import { 
+  Tabs, 
+  TabsContent, 
+  TabsList, 
+  TabsTrigger 
+} from "@/components/ui/tabs";
+import { 
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import { 
   Droplet, 
   Thermometer, 
@@ -28,7 +40,12 @@ import {
   Bike, 
   Calculator, 
   Printer, 
-  Share2 
+  Share2,
+  ChevronDown,
+  Beaker,
+  AlertCircle,
+  Sparkles,
+  Flask
 } from "lucide-react";
 import FormulaResult from "./FormulaResult";
 import { calculateFormula, FormulaResult as FormulaResultType } from "@/lib/formula";
@@ -41,6 +58,13 @@ interface SavedSettings {
   intensity: string;
   bottleSize: number;
   isMetric: boolean;
+  // Advanced settings
+  isAdvanced: boolean;
+  carbRatio: string;
+  caffeineSensitivity: string;
+  carbAdaptation: string;
+  separateBottles: boolean;
+  formulaType: string;
 }
 
 // Storage key for localStorage
@@ -48,13 +72,25 @@ const STORAGE_KEY = 'ride-fuel-calculator-settings';
 
 const RideCalculator = () => {
   const { toast } = useToast();
+  // Basic settings
   const [distance, setDistance] = useState<number>(20);
   const [temperature, setTemperature] = useState<number>(70);
   const [sweatRate, setSweatRate] = useState<string>("medium");
   const [intensity, setIntensity] = useState<string>("medium");
   const [bottleSize, setBottleSize] = useState<number>(750);
-  const [formula, setFormula] = useState<FormulaResultType | null>(null);
   const [isMetric, setIsMetric] = useState<boolean>(false);
+  
+  // Advanced settings
+  const [isAdvanced, setIsAdvanced] = useState<boolean>(false);
+  const [carbRatio, setCarbRatio] = useState<string>("maltodextrin-dominant");
+  const [caffeineSensitivity, setCaffeineSensitivity] = useState<string>("medium");
+  const [carbAdaptation, setCarbAdaptation] = useState<string>("medium");
+  const [separateBottles, setSeparateBottles] = useState<boolean>(false);
+  const [formulaType, setFormulaType] = useState<string>("isotonic");
+  
+  // Results
+  const [formula, setFormula] = useState<FormulaResultType | null>(null);
+  const [isAdvancedOpen, setIsAdvancedOpen] = useState<boolean>(false);
 
   // Load saved settings from localStorage on component mount
   useEffect(() => {
@@ -64,13 +100,23 @@ const RideCalculator = () => {
       try {
         const parsedSettings: SavedSettings = JSON.parse(savedSettings);
         
-        // Update state with saved values
+        // Update state with saved basic values
         setDistance(parsedSettings.distance);
         setTemperature(parsedSettings.temperature);
         setSweatRate(parsedSettings.sweatRate);
         setIntensity(parsedSettings.intensity);
         setBottleSize(parsedSettings.bottleSize);
         setIsMetric(parsedSettings.isMetric);
+        
+        // Update advanced values if they exist
+        if ('isAdvanced' in parsedSettings) {
+          setIsAdvanced(parsedSettings.isAdvanced);
+          setCarbRatio(parsedSettings.carbRatio || "maltodextrin-dominant");
+          setCaffeineSensitivity(parsedSettings.caffeineSensitivity || "medium");
+          setCarbAdaptation(parsedSettings.carbAdaptation || "medium");
+          setSeparateBottles(parsedSettings.separateBottles || false);
+          setFormulaType(parsedSettings.formulaType || "isotonic");
+        }
         
         // Calculate formula with loaded settings
         setTimeout(() => {
@@ -80,7 +126,13 @@ const RideCalculator = () => {
             parsedSettings.sweatRate,
             parsedSettings.intensity,
             parsedSettings.bottleSize,
-            parsedSettings.isMetric
+            parsedSettings.isMetric,
+            parsedSettings.isAdvanced || false,
+            parsedSettings.carbRatio || "maltodextrin-dominant",
+            parsedSettings.caffeineSensitivity || "medium",
+            parsedSettings.carbAdaptation || "medium",
+            parsedSettings.separateBottles || false,
+            parsedSettings.formulaType || "isotonic"
           );
         }, 0);
       } catch (error) {
@@ -101,11 +153,30 @@ const RideCalculator = () => {
       sweatRate,
       intensity,
       bottleSize,
-      isMetric
+      isMetric,
+      isAdvanced,
+      carbRatio,
+      caffeineSensitivity,
+      carbAdaptation,
+      separateBottles,
+      formulaType
     };
     
     localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
-  }, [distance, temperature, sweatRate, intensity, bottleSize, isMetric]);
+  }, [
+    distance, 
+    temperature, 
+    sweatRate, 
+    intensity, 
+    bottleSize, 
+    isMetric,
+    isAdvanced,
+    carbRatio,
+    caffeineSensitivity,
+    carbAdaptation,
+    separateBottles,
+    formulaType
+  ]);
 
   const calculateResultWithCurrentSettings = (
     currentDistance: number,
@@ -113,7 +184,13 @@ const RideCalculator = () => {
     currentSweatRate: string,
     currentIntensity: string,
     currentBottleSize: number,
-    currentIsMetric: boolean
+    currentIsMetric: boolean,
+    currentIsAdvanced: boolean,
+    currentCarbRatio: string,
+    currentCaffeineSensitivity: string,
+    currentCarbAdaptation: string,
+    currentSeparateBottles: boolean,
+    currentFormulaType: string
   ) => {
     try {
       const result = calculateFormula({
@@ -121,14 +198,22 @@ const RideCalculator = () => {
         temperature: currentIsMetric ? currentTemperature : (currentTemperature - 32) * 5/9, // Convert F to C if needed
         sweatRate: currentSweatRate,
         intensity: currentIntensity,
-        bottleSize: currentBottleSize
+        bottleSize: currentBottleSize,
+        isAdvanced: currentIsAdvanced,
+        carbRatio: currentCarbRatio,
+        caffeineSensitivity: currentCaffeineSensitivity,
+        carbAdaptation: currentCarbAdaptation,
+        separateBottles: currentSeparateBottles,
+        formulaType: currentFormulaType
       });
 
       setFormula(result);
       
       toast({
         title: "Formula Calculated!",
-        description: "Your custom electrolyte mix is ready.",
+        description: currentIsAdvanced 
+          ? "Your advanced custom electrolyte mix is ready." 
+          : "Your custom electrolyte mix is ready.",
       });
     } catch (error) {
       toast({
@@ -146,7 +231,13 @@ const RideCalculator = () => {
       sweatRate,
       intensity,
       bottleSize,
-      isMetric
+      isMetric,
+      isAdvanced,
+      carbRatio,
+      caffeineSensitivity,
+      carbAdaptation,
+      separateBottles,
+      formulaType
     );
   };
 
@@ -162,12 +253,24 @@ const RideCalculator = () => {
     }
     setIsMetric(!isMetric);
   };
+  
+  const toggleAdvancedMode = () => {
+    setIsAdvanced(!isAdvanced);
+    
+    // If turning on advanced mode, set the advanced collapsible to open
+    if (!isAdvanced) {
+      setIsAdvancedOpen(true);
+    }
+    
+    // Recalculate with the new mode
+    setTimeout(calculateResult, 0);
+  };
 
   return (
     <div className="w-full max-w-4xl mx-auto p-4">
       <Card className="shadow-lg">
         <CardHeader className="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900 dark:to-blue-800">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between flex-wrap gap-4">
             <div>
               <CardTitle className="text-3xl font-bold text-primary flex items-center gap-2">
                 <Bike className="h-8 w-8" /> Ride Fuel Formula
@@ -176,9 +279,22 @@ const RideCalculator = () => {
                 Calculate your perfect electrolyte drink for cycling
               </CardDescription>
             </div>
-            <Button variant="outline" onClick={handleUnitToggle}>
-              {isMetric ? "Switch to Imperial" : "Switch to Metric"}
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-2">
+              <div className="flex items-center space-x-2">
+                <Switch 
+                  id="advanced-mode" 
+                  checked={isAdvanced}
+                  onCheckedChange={toggleAdvancedMode}
+                />
+                <Label htmlFor="advanced-mode" className="flex items-center gap-1">
+                  <Beaker className="h-4 w-4" />
+                  Advanced Mode
+                </Label>
+              </div>
+              <Button variant="outline" onClick={handleUnitToggle}>
+                {isMetric ? "Switch to Imperial" : "Switch to Metric"}
+              </Button>
+            </div>
           </div>
         </CardHeader>
         
@@ -197,7 +313,7 @@ const RideCalculator = () => {
                 <Slider
                   id="distance"
                   min={isMetric ? 5 : 3}
-                  max={isMetric ? 300 : 200} // Updated max distance
+                  max={isMetric ? 300 : 200} 
                   step={isMetric ? 5 : 5}
                   value={[distance]}
                   onValueChange={(value) => setDistance(value[0])}
@@ -216,8 +332,8 @@ const RideCalculator = () => {
                 </div>
                 <Slider
                   id="temperature"
-                  min={isMetric ? 0 : 32} // Updated min temp 
-                  max={isMetric ? 45 : 110} // Updated max temp
+                  min={isMetric ? 0 : 32}
+                  max={isMetric ? 45 : 110}
                   step={1}
                   value={[temperature]}
                   onValueChange={(value) => setTemperature(value[0])}
@@ -278,6 +394,110 @@ const RideCalculator = () => {
                 </Select>
               </div>
               
+              {isAdvanced && (
+                <Collapsible
+                  open={isAdvancedOpen}
+                  onOpenChange={setIsAdvancedOpen}
+                  className="mt-6 border rounded-md p-2"
+                >
+                  <CollapsibleTrigger asChild>
+                    <Button variant="ghost" className="flex items-center justify-between w-full">
+                      <span className="flex items-center gap-2">
+                        <Beaker className="h-4 w-4" />
+                        Advanced Options
+                      </span>
+                      <ChevronDown className={`h-4 w-4 transition-transform ${isAdvancedOpen ? "transform rotate-180" : ""}`} />
+                    </Button>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="mt-4 space-y-4 px-2">
+                    <div>
+                      <Label htmlFor="carb-ratio" className="flex items-center gap-2 mb-2">
+                        <Flask className="h-4 w-4" /> Carbohydrate Ratio
+                      </Label>
+                      <Select value={carbRatio} onValueChange={setCarbRatio}>
+                        <SelectTrigger id="carb-ratio">
+                          <SelectValue placeholder="Select carb ratio" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="maltodextrin-dominant">Maltodextrin-Dominant (2:1)</SelectItem>
+                          <SelectItem value="balanced">Balanced (1:1)</SelectItem>
+                          <SelectItem value="fructose-dominant">Fructose-Dominant (1:2)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        The ratio of maltodextrin to fructose affects absorption rate
+                      </p>
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="caffeine-sensitivity" className="flex items-center gap-2 mb-2">
+                        <AlertCircle className="h-4 w-4" /> Caffeine Sensitivity
+                      </Label>
+                      <Select value={caffeineSensitivity} onValueChange={setCaffeineSensitivity}>
+                        <SelectTrigger id="caffeine-sensitivity">
+                          <SelectValue placeholder="Select caffeine sensitivity" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="low">Low (Metabolizes Quickly)</SelectItem>
+                          <SelectItem value="medium">Medium (Average Sensitivity)</SelectItem>
+                          <SelectItem value="high">High (Sensitive to Caffeine)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="carb-adaptation" className="flex items-center gap-2 mb-2">
+                        <Sparkles className="h-4 w-4" /> Carb Training Adaptation
+                      </Label>
+                      <Select value={carbAdaptation} onValueChange={setCarbAdaptation}>
+                        <SelectTrigger id="carb-adaptation">
+                          <SelectValue placeholder="Select carb adaptation level" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="low">Low (New to carb training)</SelectItem>
+                          <SelectItem value="medium">Medium (Some training)</SelectItem>
+                          <SelectItem value="high">High (Well-trained gut)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Your ability to process carbs during exercise
+                      </p>
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="formula-type" className="flex items-center gap-2 mb-2">
+                        <Beaker className="h-4 w-4" /> Formula Type
+                      </Label>
+                      <Select value={formulaType} onValueChange={setFormulaType}>
+                        <SelectTrigger id="formula-type">
+                          <SelectValue placeholder="Select formula type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="hypotonic">Hypotonic (Faster Absorption)</SelectItem>
+                          <SelectItem value="isotonic">Isotonic (Balanced)</SelectItem>
+                          <SelectItem value="hypertonic">Hypertonic (Higher Energy)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Based on osmolality - affects absorption rate vs. energy delivery
+                      </p>
+                    </div>
+                    
+                    <div className="flex items-center space-x-2 pt-2">
+                      <Switch 
+                        id="separate-bottles" 
+                        checked={separateBottles}
+                        onCheckedChange={setSeparateBottles}
+                      />
+                      <Label htmlFor="separate-bottles">Separate Hydration & Fueling Bottles</Label>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Pro approach: one bottle optimized for hydration, one for energy
+                    </p>
+                  </CollapsibleContent>
+                </Collapsible>
+              )}
+              
               <Button 
                 className="w-full mt-4" 
                 size="lg" 
@@ -288,14 +508,17 @@ const RideCalculator = () => {
             </div>
 
             <div>
-              {formula && <FormulaResult formula={formula} isMetric={isMetric} />}
+              {formula && <FormulaResult formula={formula} isMetric={isMetric} isAdvanced={isAdvanced} />}
             </div>
           </div>
         </CardContent>
         
         <CardFooter className="bg-muted/50 flex justify-between gap-2 flex-wrap">
           <div className="text-xs text-muted-foreground">
-            Formulas based on sport science recommendations for cyclists
+            {isAdvanced 
+              ? "Advanced formulas based on latest sport science research for cyclists"
+              : "Formulas based on sport science recommendations for cyclists"
+            }
           </div>
           <div className="flex gap-2">
             <Button variant="outline" size="sm">
