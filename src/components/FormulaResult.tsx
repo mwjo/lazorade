@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { FormulaResult as FormulaResultType } from "@/lib/formula";
+import { Bike, Droplet } from "lucide-react";
 
 interface FormulaResultProps {
   formula: FormulaResultType;
@@ -22,7 +23,8 @@ const FormulaResult: React.FC<FormulaResultProps> = ({ formula, isMetric }) => {
     sugarAmount, 
     caffeineAmount, 
     totalRideTime, 
-    totalCalories 
+    totalCalories,
+    bottlesNeeded 
   } = formula;
   
   // Get the highest amount to normalize progress bars
@@ -108,6 +110,18 @@ const FormulaResult: React.FC<FormulaResultProps> = ({ formula, isMetric }) => {
           </div>
         </div>
         
+        {bottlesNeeded > 1 && (
+          <div className="bg-amber-50 dark:bg-amber-900/30 p-3 rounded-md mt-4">
+            <p className="font-medium flex items-center gap-2">
+              <Droplet className="h-4 w-4 text-blue-500" />
+              <span>You'll need <strong>{bottlesNeeded} bottles</strong> for this ride!</span>
+            </p>
+            <p className="text-sm text-muted-foreground mt-1">
+              Make sure to prepare enough mix for all your bottles using the formula below.
+            </p>
+          </div>
+        )}
+        
         <div className="rounded-md bg-blue-50 dark:bg-blue-900/30 p-3 text-sm mt-4">
           <p className="font-medium mb-1">Mix Instructions:</p>
           <ol className="list-decimal list-inside space-y-1 text-muted-foreground">
@@ -115,6 +129,11 @@ const FormulaResult: React.FC<FormulaResultProps> = ({ formula, isMetric }) => {
             <li>Add to your {formula.waterAmount}ml bottle</li> 
             <li>Shake thoroughly until dissolved</li>
             <li>Best consumed cold</li>
+            {bottlesNeeded > 1 && (
+              <li className="font-medium text-blue-600 dark:text-blue-400">
+                Repeat for all {bottlesNeeded} bottles
+              </li>
+            )}
           </ol>
         </div>
       </CardContent>

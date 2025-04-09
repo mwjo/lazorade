@@ -120,8 +120,8 @@ const RideCalculator = () => {
                 <Slider
                   id="distance"
                   min={isMetric ? 5 : 3}
-                  max={isMetric ? 200 : 124}
-                  step={isMetric ? 5 : 3}
+                  max={isMetric ? 300 : 200} // Updated max distance
+                  step={isMetric ? 5 : 5}
                   value={[distance]}
                   onValueChange={(value) => setDistance(value[0])}
                   className="py-4"
@@ -139,8 +139,8 @@ const RideCalculator = () => {
                 </div>
                 <Slider
                   id="temperature"
-                  min={isMetric ? 5 : 41}
-                  max={isMetric ? 40 : 104}
+                  min={isMetric ? 0 : 32} // Updated min temp 
+                  max={isMetric ? 45 : 110} // Updated max temp
                   step={1}
                   value={[temperature]}
                   onValueChange={(value) => setTemperature(value[0])}

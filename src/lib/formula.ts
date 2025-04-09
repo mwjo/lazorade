@@ -15,6 +15,7 @@ export interface FormulaResult {
   caffeineAmount: number; // in mg
   totalRideTime: number; // in hours
   totalCalories: number; // calories
+  bottlesNeeded: number; // total bottles required for the ride
 }
 
 /**
@@ -61,6 +62,9 @@ export function calculateFormula(params: FormulaParams): FormulaResult {
   
   // Total water needed for the ride
   let totalWaterRequired = waterRequiredPerHour * totalRideTime;
+  
+  // Calculate total bottles needed
+  const bottlesNeeded = Math.ceil(totalWaterRequired / bottleSize);
   
   // If required water exceeds bottle size, we need to concentrate the mix
   if (totalWaterRequired > bottleSize) {
@@ -111,6 +115,7 @@ export function calculateFormula(params: FormulaParams): FormulaResult {
     sugarAmount,
     caffeineAmount,
     totalRideTime,
-    totalCalories
+    totalCalories,
+    bottlesNeeded
   };
 }
