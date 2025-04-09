@@ -33,6 +33,19 @@ import {
 import FormulaResult from "./FormulaResult";
 import { calculateFormula, FormulaResult as FormulaResultType } from "@/lib/formula";
 
+// Define the shape of settings we'll store
+interface SavedSettings {
+  distance: number;
+  temperature: number;
+  sweatRate: string;
+  intensity: string;
+  bottleSize: number;
+  isMetric: boolean;
+}
+
+// Storage key for localStorage
+const STORAGE_KEY = 'ride-fuel-calculator-settings';
+
 const RideCalculator = () => {
   const { toast } = useToast();
   const [distance, setDistance] = useState<number>(20);
@@ -43,19 +56,72 @@ const RideCalculator = () => {
   const [formula, setFormula] = useState<FormulaResultType | null>(null);
   const [isMetric, setIsMetric] = useState<boolean>(false);
 
+  // Load saved settings from localStorage on component mount
   useEffect(() => {
-    // Initial calculation
-    calculateResult();
+    const savedSettings = localStorage.getItem(STORAGE_KEY);
+    
+    if (savedSettings) {
+      try {
+        const parsedSettings: SavedSettings = JSON.parse(savedSettings);
+        
+        // Update state with saved values
+        setDistance(parsedSettings.distance);
+        setTemperature(parsedSettings.temperature);
+        setSweatRate(parsedSettings.sweatRate);
+        setIntensity(parsedSettings.intensity);
+        setBottleSize(parsedSettings.bottleSize);
+        setIsMetric(parsedSettings.isMetric);
+        
+        // Calculate formula with loaded settings
+        setTimeout(() => {
+          calculateResultWithCurrentSettings(
+            parsedSettings.distance,
+            parsedSettings.temperature,
+            parsedSettings.sweatRate,
+            parsedSettings.intensity,
+            parsedSettings.bottleSize,
+            parsedSettings.isMetric
+          );
+        }, 0);
+      } catch (error) {
+        console.error('Error loading saved settings:', error);
+      }
+    } else {
+      // No saved settings, calculate with defaults
+      calculateResult();
+    }
   }, []);
 
-  const calculateResult = () => {
+  // Save settings to localStorage whenever they change
+  useEffect(() => {
+    // Only save after initial load
+    const settings: SavedSettings = {
+      distance,
+      temperature,
+      sweatRate,
+      intensity,
+      bottleSize,
+      isMetric
+    };
+    
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
+  }, [distance, temperature, sweatRate, intensity, bottleSize, isMetric]);
+
+  const calculateResultWithCurrentSettings = (
+    currentDistance: number,
+    currentTemperature: number,
+    currentSweatRate: string,
+    currentIntensity: string,
+    currentBottleSize: number,
+    currentIsMetric: boolean
+  ) => {
     try {
       const result = calculateFormula({
-        distance: isMetric ? distance : distance * 1.60934, // Convert miles to km if needed
-        temperature: isMetric ? temperature : (temperature - 32) * 5/9, // Convert F to C if needed
-        sweatRate,
-        intensity,
-        bottleSize
+        distance: currentIsMetric ? currentDistance : currentDistance * 1.60934, // Convert miles to km if needed
+        temperature: currentIsMetric ? currentTemperature : (currentTemperature - 32) * 5/9, // Convert F to C if needed
+        sweatRate: currentSweatRate,
+        intensity: currentIntensity,
+        bottleSize: currentBottleSize
       });
 
       setFormula(result);
@@ -71,6 +137,17 @@ const RideCalculator = () => {
         variant: "destructive"
       });
     }
+  };
+
+  const calculateResult = () => {
+    calculateResultWithCurrentSettings(
+      distance,
+      temperature,
+      sweatRate,
+      intensity,
+      bottleSize,
+      isMetric
+    );
   };
 
   const handleUnitToggle = () => {
