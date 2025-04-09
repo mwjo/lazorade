@@ -36,12 +36,12 @@ import { calculateFormula, FormulaResult as FormulaResultType } from "@/lib/form
 const RideCalculator = () => {
   const { toast } = useToast();
   const [distance, setDistance] = useState<number>(20);
-  const [temperature, setTemperature] = useState<number>(25);
+  const [temperature, setTemperature] = useState<number>(70);
   const [sweatRate, setSweatRate] = useState<string>("medium");
   const [intensity, setIntensity] = useState<string>("medium");
   const [bottleSize, setBottleSize] = useState<number>(750);
   const [formula, setFormula] = useState<FormulaResultType | null>(null);
-  const [isMetric, setIsMetric] = useState<boolean>(true);
+  const [isMetric, setIsMetric] = useState<boolean>(false);
 
   useEffect(() => {
     // Initial calculation
