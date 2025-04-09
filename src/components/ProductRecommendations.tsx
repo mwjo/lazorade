@@ -18,21 +18,21 @@ const ProductRecommendations = () => {
       description: "Food Grade, Non-GMO - 2LB (32.4oz)",
       brand: "Nutricost",
       link: "https://www.amazon.com/dp/B096H1K287?smid=A2YD2H3KGK1F4L",
-      image: "https://m.media-amazon.com/images/I/61sS8k9uuGL._SL1500_.jpg"
+      image: "/placeholder.svg"
     },
     {
       name: "Citric Acid Powder",
       description: "Non-GMO, Gluten Free - 1LB",
       brand: "Nutricost",
       link: "https://www.amazon.com/dp/B08NXXMWH7?smid=A2YD2H3KGK1F4L",
-      image: "https://m.media-amazon.com/images/I/61G-33TrPOL._SL1500_.jpg"
+      image: "/placeholder.svg"
     },
     {
       name: "Caffeine Pills",
       description: "100mg Per Serving - 250 Capsules",
       brand: "Nutricost",
       link: "https://www.amazon.com/dp/B01MY5CW7S?smid=A2YD2H3KGK1F4L",
-      image: "https://m.media-amazon.com/images/I/61W7qLgPGQL._SL1500_.jpg"
+      image: "/placeholder.svg"
     }
   ];
 
@@ -50,18 +50,16 @@ const ProductRecommendations = () => {
       <CardContent className="pt-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {products.map((product, index) => (
-            <Card key={index} className="formula-card overflow-hidden">
+            <Card key={index} className="formula-card overflow-hidden border-2 hover:border-primary/50 transition-all">
               <div className="h-48 overflow-hidden bg-gray-100 flex items-center justify-center">
-                <img 
-                  src={product.image} 
-                  alt={product.name} 
-                  className="w-full h-full object-contain p-4"
-                  onError={(e) => {
-                    const target = e.target as HTMLImageElement;
-                    target.src = "https://via.placeholder.com/300x300?text=Product+Image";
-                    target.onerror = null;
-                  }}
-                />
+                <div className="w-full h-full flex flex-col items-center justify-center p-4 text-center">
+                  <img 
+                    src={product.image} 
+                    alt={product.name}
+                    className="w-24 h-24 object-contain mb-2 opacity-40"
+                  />
+                  <span className="text-sm font-medium text-gray-500">{product.name}</span>
+                </div>
               </div>
               <CardContent className="p-4">
                 <h3 className="font-bold text-lg">{product.name}</h3>
