@@ -1,6 +1,7 @@
 
 import React from 'react';
 import RideCalculator from '@/components/RideCalculator';
+import ProductRecommendations from '@/components/ProductRecommendations';
 
 const Index = () => {
   return (
@@ -12,8 +13,12 @@ const Index = () => {
         </p>
       </header>
       
-      <main>
+      <main className="space-y-12">
         <RideCalculator />
+        
+        <div className="w-full max-w-4xl mx-auto p-4">
+          <ProductRecommendations />
+        </div>
       </main>
       
       <footer className="max-w-4xl mx-auto mt-12 text-center text-sm text-muted-foreground p-4">
