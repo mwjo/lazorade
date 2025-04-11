@@ -19,6 +19,14 @@ import { Bike, Droplet, Beaker } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Button } from "@/components/ui/button";
 import { ChevronDown } from "lucide-react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 interface FormulaResultProps {
   formula: FormulaResultType;
@@ -46,49 +54,87 @@ const FormulaResult: React.FC<FormulaResultProps> = ({ formula, isMetric, isAdva
   const maxAmount = Math.max(
     sodiumCitrateAmount, 
     citricAcidAmount, 
-    maltodextrinAmount,
-    fructoseAmount,
+    maltodextrinAmount + fructoseAmount, // Combined in non-advanced mode
+    isAdvanced ? maltodextrinAmount : 0,
+    isAdvanced ? fructoseAmount : 0,
     caffeineAmount * 10 // Scale up caffeine for visibility
   );
   
   // Define ingredients for standard single bottle
-  const ingredients = [
-    {
-      name: "Maltodextrin",
-      amount: maltodextrinAmount,
-      unit: "g",
-      color: "bg-green-500",
-      percentage: (maltodextrinAmount / maxAmount) * 100
-    },
-    {
-      name: "Fructose",
-      amount: fructoseAmount,
-      unit: "g",
-      color: "bg-green-300",
-      percentage: (fructoseAmount / maxAmount) * 100
-    },
-    {
-      name: "Sodium Citrate",
-      amount: sodiumCitrateAmount,
-      unit: "g",
-      color: "bg-blue-500",
-      percentage: (sodiumCitrateAmount / maxAmount) * 100
-    },
-    {
-      name: "Citric Acid",
-      amount: citricAcidAmount,
-      unit: "g",
-      color: "bg-yellow-500",
-      percentage: (citricAcidAmount / maxAmount) * 100
-    },
-    {
-      name: "Caffeine",
-      amount: caffeineAmount,
-      unit: "mg",
-      color: "bg-red-500",
-      percentage: ((caffeineAmount * 10) / maxAmount) * 100 // Scale up for visibility
-    }
-  ];
+  let ingredients = [];
+  
+  if (isAdvanced) {
+    // In advanced mode, show maltodextrin and fructose separately
+    ingredients = [
+      {
+        name: "Maltodextrin",
+        amount: maltodextrinAmount,
+        unit: "g",
+        color: "bg-green-500",
+        percentage: (maltodextrinAmount / maxAmount) * 100
+      },
+      {
+        name: "Fructose",
+        amount: fructoseAmount,
+        unit: "g",
+        color: "bg-green-300",
+        percentage: (fructoseAmount / maxAmount) * 100
+      },
+      {
+        name: "Sodium Citrate",
+        amount: sodiumCitrateAmount,
+        unit: "g",
+        color: "bg-blue-500",
+        percentage: (sodiumCitrateAmount / maxAmount) * 100
+      },
+      {
+        name: "Citric Acid",
+        amount: citricAcidAmount,
+        unit: "g",
+        color: "bg-yellow-500",
+        percentage: (citricAcidAmount / maxAmount) * 100
+      },
+      {
+        name: "Caffeine",
+        amount: caffeineAmount,
+        unit: "mg",
+        color: "bg-red-500",
+        percentage: ((caffeineAmount * 10) / maxAmount) * 100 // Scale up for visibility
+      }
+    ];
+  } else {
+    // In non-advanced mode, combine maltodextrin and fructose as "Table Sugar"
+    ingredients = [
+      {
+        name: "Table Sugar",
+        amount: maltodextrinAmount + fructoseAmount,
+        unit: "g",
+        color: "bg-green-500",
+        percentage: ((maltodextrinAmount + fructoseAmount) / maxAmount) * 100
+      },
+      {
+        name: "Sodium Citrate",
+        amount: sodiumCitrateAmount,
+        unit: "g",
+        color: "bg-blue-500",
+        percentage: (sodiumCitrateAmount / maxAmount) * 100
+      },
+      {
+        name: "Citric Acid",
+        amount: citricAcidAmount,
+        unit: "g",
+        color: "bg-yellow-500",
+        percentage: (citricAcidAmount / maxAmount) * 100
+      },
+      {
+        name: "Caffeine",
+        amount: caffeineAmount,
+        unit: "mg",
+        color: "bg-red-500",
+        percentage: ((caffeineAmount * 10) / maxAmount) * 100 // Scale up for visibility
+      }
+    ];
+  }
   
   if (!isAdvanced || !hydrationBottle || !fuelingBottle) {
     // Standard single bottle view
@@ -173,6 +219,34 @@ const FormulaResult: React.FC<FormulaResultProps> = ({ formula, isMetric, isAdva
     );
   } else {
     // Separate bottles view for advanced mode
+    // For the fueling bottle in advanced mode, we need to adjust display similarly
+    const fuelingIngredients = [
+      {
+        name: "Maltodextrin",
+        amount: fuelingBottle.maltodextrinAmount,
+        unit: "g",
+        color: "bg-green-500"
+      },
+      {
+        name: "Fructose",
+        amount: fuelingBottle.fructoseAmount,
+        unit: "g",
+        color: "bg-green-300"
+      },
+      {
+        name: "Citric Acid",
+        amount: fuelingBottle.citricAcidAmount,
+        unit: "g",
+        color: "bg-yellow-500"
+      },
+      {
+        name: "Caffeine",
+        amount: fuelingBottle.caffeineAmount,
+        unit: "mg",
+        color: "bg-red-500"
+      }
+    ];
+    
     return (
       <Card className="formula-card h-full">
         <CardHeader className="bg-gradient-to-r from-blue-100 to-blue-50 dark:from-blue-800 dark:to-blue-900">
@@ -271,9 +345,9 @@ const FormulaResult: React.FC<FormulaResultProps> = ({ formula, isMetric, isAdva
                 
                 <div className="flex items-center justify-between text-sm font-medium">
                   <span className="flex items-center gap-1">
-                    <span className="inline-block w-3 h-3 rounded-full bg-yellow-500"></span>
-                    Citric Acid
-                  </span>
+                     <span className="inline-block w-3 h-3 rounded-full bg-yellow-500"></span>
+                     Citric Acid
+                   </span>
                   <span>{hydrationBottle.citricAcidAmount} g</span>
                 </div>
               </div>
@@ -309,37 +383,15 @@ const FormulaResult: React.FC<FormulaResultProps> = ({ formula, isMetric, isAdva
                   <span>{fuelingBottle.waterAmount} ml</span>
                 </div>
                 
-                <div className="flex items-center justify-between text-sm font-medium">
-                  <span className="flex items-center gap-1">
-                    <span className="inline-block w-3 h-3 rounded-full bg-green-500"></span>
-                    Maltodextrin
-                  </span>
-                  <span>{fuelingBottle.maltodextrinAmount} g</span>
-                </div>
-                
-                <div className="flex items-center justify-between text-sm font-medium">
-                  <span className="flex items-center gap-1">
-                    <span className="inline-block w-3 h-3 rounded-full bg-green-300"></span>
-                    Fructose
-                  </span>
-                  <span>{fuelingBottle.fructoseAmount} g</span>
-                </div>
-                
-                <div className="flex items-center justify-between text-sm font-medium">
-                  <span className="flex items-center gap-1">
-                    <span className="inline-block w-3 h-3 rounded-full bg-yellow-500"></span>
-                    Citric Acid
-                  </span>
-                  <span>{fuelingBottle.citricAcidAmount} g</span>
-                </div>
-                
-                <div className="flex items-center justify-between text-sm font-medium">
-                  <span className="flex items-center gap-1">
-                    <span className="inline-block w-3 h-3 rounded-full bg-red-500"></span>
-                    Caffeine
-                  </span>
-                  <span>{fuelingBottle.caffeineAmount} mg</span>
-                </div>
+                {fuelingIngredients.map((ingredient, index) => (
+                  <div key={index} className="flex items-center justify-between text-sm font-medium">
+                    <span className="flex items-center gap-1">
+                      <span className={`inline-block w-3 h-3 rounded-full ${ingredient.color}`}></span>
+                      {ingredient.name}
+                    </span>
+                    <span>{ingredient.amount} {ingredient.unit}</span>
+                  </div>
+                ))}
               </div>
               
               <div className="rounded-md bg-blue-50 dark:bg-blue-900/30 p-3 text-sm mt-4">
