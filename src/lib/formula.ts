@@ -1,3 +1,4 @@
+
 export interface FormulaParams {
   duration: number; // in hours
   temperature: number; // in Celsius
@@ -60,33 +61,70 @@ export function calculateFormula(params: FormulaParams): FormulaResult {
   // Use the provided duration directly instead of calculating from distance
   const totalRideTime = duration;
   
-  // Calculate carbohydrate amounts (refined approach)
+  // Calculate carbohydrate amounts with progressive approach
   // Base carb amount depends on intensity
-  let carbsPerHour = 60; // g/hour - base amount
-  if (intensity === "low") carbsPerHour = 45;
-  if (intensity === "high") carbsPerHour = 75;
+  let baseCarbs = 60; // g/hour - base amount
+  if (intensity === "low") baseCarbs = 45;
+  if (intensity === "high") baseCarbs = 75;
   
   // Adjust based on carb adaptation level (for advanced mode)
   if (isAdvanced && carbAdaptation === "high") {
-    carbsPerHour *= 1.25; // Up to 90-100g/hr for well-adapted athletes
+    baseCarbs *= 1.25; // Up to 90-100g/hr for well-adapted athletes
   } else if (isAdvanced && carbAdaptation === "low") {
-    carbsPerHour *= 0.8; // Reduce for those with less adaptation
+    baseCarbs *= 0.8; // Reduce for those with less adaptation
   }
   
+  // Temperature adjustment - reduce carbs at higher temperatures
+  let tempAdjustment = 1;
+  if (temperature > 25) {
+    // Reduce carbs by up to 20% as temperature increases (max reduction at 35°C)
+    tempAdjustment = 1 - Math.min(0.2, (temperature - 25) * 0.02);
+  }
+  
+  // Progressive scaling - lower carbs for shorter rides, scaling up to the full amount
+  // for longer rides (full amount after 2 hours)
+  let progressiveFactor = 1;
+  if (totalRideTime <= 2) {
+    // Scale from 50% at 0 hours to 100% at 2 hours
+    progressiveFactor = 0.5 + (totalRideTime / 4);
+  }
+  
+  // Apply adjustments to base carbs
+  let carbsPerHour = baseCarbs * tempAdjustment * progressiveFactor;
+  
   // Calculate total carbs needed for the ride
-  let totalCarbs = carbsPerHour * totalRideTime;
+  let totalCarbs = 0;
+  
+  // For rides under 2 hours, apply progressive scaling hour by hour
+  if (totalRideTime <= 2) {
+    // First hour carbs (50-75% of full amount depending on duration)
+    const firstHourFactor = 0.5 + (Math.min(1, totalRideTime) / 4);
+    totalCarbs += baseCarbs * tempAdjustment * firstHourFactor * Math.min(1, totalRideTime);
+    
+    // Second hour carbs (75-100% of full amount depending on remaining duration)
+    if (totalRideTime > 1) {
+      const secondHourFactor = 0.75 + (Math.min(1, totalRideTime - 1) / 4);
+      totalCarbs += baseCarbs * tempAdjustment * secondHourFactor * Math.min(1, totalRideTime - 1);
+    }
+  }
+  // For rides over 2 hours
+  else {
+    // First hour: 50% of adjusted base
+    totalCarbs += baseCarbs * tempAdjustment * 0.5;
+    
+    // Second hour: 75% of adjusted base
+    totalCarbs += baseCarbs * tempAdjustment * 0.75;
+    
+    // Remaining hours: full adjusted base amount
+    totalCarbs += baseCarbs * tempAdjustment * (totalRideTime - 2);
+  }
   
   // Cap at reasonable amounts based on adaptation
   const carbCap = isAdvanced ? 
     (carbAdaptation === "high" ? 120 : carbAdaptation === "medium" ? 90 : 70) : 
     90; // Default cap at 90g in basic mode
     
-  totalCarbs = Math.min(totalCarbs, carbCap);
-  
-  // Scale down if ride is very short
-  if (totalRideTime < 1) {
-    totalCarbs = totalCarbs * totalRideTime;
-  }
+  totalCarbs = Math.min(totalCarbs, carbCap * totalRideTime);
   
   // Split carbs based on the selected ratio
   let maltodextrinRatio = 0.56; // Default 1:0.8 maltodextrin:fructose (56% maltodextrin, 44% fructose)
