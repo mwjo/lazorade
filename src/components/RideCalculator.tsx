@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { 
   Card, 
@@ -50,7 +49,7 @@ import FormulaResult from "./FormulaResult";
 import { calculateFormula, FormulaResult as FormulaResultType } from "@/lib/formula";
 
 interface SavedSettings {
-  distance: number;
+  duration: number;
   temperature: number;
   sweatRate: string;
   intensity: string;
@@ -67,7 +66,7 @@ const STORAGE_KEY = 'ride-fuel-calculator-settings';
 const RideCalculator = () => {
   const { toast } = useToast();
 
-  const [distance, setDistance] = useState<number>(20);
+  const [duration, setDuration] = useState<number>(2);
   const [temperature, setTemperature] = useState<number>(70);
   const [sweatRate, setSweatRate] = useState<string>("medium");
   const [intensity, setIntensity] = useState<string>("medium");
@@ -89,7 +88,7 @@ const RideCalculator = () => {
       try {
         const parsedSettings: SavedSettings = JSON.parse(savedSettings);
         
-        setDistance(parsedSettings.distance);
+        setDuration(parsedSettings.duration || 2);
         setTemperature(parsedSettings.temperature);
         setSweatRate(parsedSettings.sweatRate);
         setIntensity(parsedSettings.intensity);
@@ -105,7 +104,7 @@ const RideCalculator = () => {
         
         setTimeout(() => {
           calculateResultWithCurrentSettings(
-            parsedSettings.distance,
+            parsedSettings.duration || 2,
             parsedSettings.temperature,
             parsedSettings.sweatRate,
             parsedSettings.intensity,
@@ -127,7 +126,7 @@ const RideCalculator = () => {
 
   useEffect(() => {
     const settings: SavedSettings = {
-      distance,
+      duration,
       temperature,
       sweatRate,
       intensity,
@@ -141,7 +140,7 @@ const RideCalculator = () => {
     
     localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
   }, [
-    distance, 
+    duration, 
     temperature, 
     sweatRate, 
     intensity, 
@@ -154,7 +153,7 @@ const RideCalculator = () => {
   ]);
 
   const calculateResultWithCurrentSettings = (
-    currentDistance: number,
+    currentDuration: number,
     currentTemperature: number,
     currentSweatRate: string,
     currentIntensity: string,
@@ -167,7 +166,7 @@ const RideCalculator = () => {
   ) => {
     try {
       const result = calculateFormula({
-        distance: currentIsMetric ? currentDistance : currentDistance * 1.60934,
+        duration: currentDuration,
         temperature: currentIsMetric ? currentTemperature : (currentTemperature - 32) * 5/9,
         sweatRate: currentSweatRate,
         intensity: currentIntensity,
@@ -197,7 +196,7 @@ const RideCalculator = () => {
 
   const calculateResult = () => {
     calculateResultWithCurrentSettings(
-      distance,
+      duration,
       temperature,
       sweatRate,
       intensity,
@@ -212,10 +211,8 @@ const RideCalculator = () => {
 
   const handleUnitToggle = () => {
     if (isMetric) {
-      setDistance(Math.round(distance / 1.60934));
       setTemperature(Math.round(temperature * 9/5 + 32));
     } else {
-      setDistance(Math.round(distance * 1.60934));
       setTemperature(Math.round((temperature - 32) * 5/9));
     }
     setIsMetric(!isMetric);
@@ -268,20 +265,20 @@ const RideCalculator = () => {
             <div className="space-y-4">
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <Label htmlFor="distance" className="flex items-center gap-2">
-                    <Bike className="h-4 w-4" /> Ride Distance
+                  <Label htmlFor="duration" className="flex items-center gap-2">
+                    <Clock className="h-4 w-4" /> Ride Duration
                   </Label>
                   <span className="text-muted-foreground text-sm">
-                    {distance} {isMetric ? "km" : "miles"}
+                    {duration} {duration === 1 ? "hour" : "hours"}
                   </span>
                 </div>
                 <Slider
-                  id="distance"
-                  min={isMetric ? 5 : 3}
-                  max={isMetric ? 300 : 200} 
-                  step={isMetric ? 5 : 5}
-                  value={[distance]}
-                  onValueChange={(value) => setDistance(value[0])}
+                  id="duration"
+                  min={0.5}
+                  max={10}
+                  step={0.5}
+                  value={[duration]}
+                  onValueChange={(value) => setDuration(value[0])}
                   className="py-4"
                 />
               </div>

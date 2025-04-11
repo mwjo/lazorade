@@ -1,5 +1,5 @@
 export interface FormulaParams {
-  distance: number; // in km
+  duration: number; // in hours
   temperature: number; // in Celsius
   sweatRate: string; // 'low', 'medium', 'high'
   intensity: string; // 'low', 'medium', 'high'
@@ -46,7 +46,7 @@ export interface FormulaResult {
  */
 export function calculateFormula(params: FormulaParams): FormulaResult {
   const { 
-    distance, 
+    duration, 
     temperature, 
     sweatRate, 
     intensity, 
@@ -57,13 +57,8 @@ export function calculateFormula(params: FormulaParams): FormulaResult {
     separateBottles = false
   } = params;
   
-  // Calculate estimated ride time based on distance and intensity (in hours)
-  let speedFactor = 1;
-  if (intensity === "low") speedFactor = 0.8;
-  if (intensity === "high") speedFactor = 1.2;
-  
-  const averageSpeed = 25 * speedFactor; // km/h - baseline speed for average cyclist
-  const totalRideTime = Math.max(1, Math.round((distance / averageSpeed) * 10) / 10); // round to 1 decimal
+  // Use the provided duration directly instead of calculating from distance
+  const totalRideTime = duration;
   
   // Calculate carbohydrate amounts (refined approach)
   // Base carb amount depends on intensity
