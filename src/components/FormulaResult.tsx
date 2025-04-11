@@ -30,9 +30,6 @@ const FormulaResult: React.FC<FormulaResultProps> = ({ formula, isMetric, isAdva
   const { 
     waterAmount, 
     sodiumCitrateAmount, 
-    potassiumAmount,
-    calciumAmount,
-    magnesiumAmount,
     citricAcidAmount, 
     maltodextrinAmount,
     fructoseAmount,
@@ -92,33 +89,6 @@ const FormulaResult: React.FC<FormulaResultProps> = ({ formula, isMetric, isAdva
       percentage: ((caffeineAmount * 10) / maxAmount) * 100 // Scale up for visibility
     }
   ];
-  
-  // Add additional electrolytes for advanced view
-  if (isAdvanced) {
-    ingredients.push(
-      {
-        name: "Potassium",
-        amount: potassiumAmount,
-        unit: "mg",
-        color: "bg-purple-500",
-        percentage: (potassiumAmount / 10 / maxAmount) * 100
-      },
-      {
-        name: "Calcium",
-        amount: calciumAmount,
-        unit: "mg",
-        color: "bg-orange-500",
-        percentage: (calciumAmount / 10 / maxAmount) * 100
-      },
-      {
-        name: "Magnesium",
-        amount: magnesiumAmount,
-        unit: "mg",
-        color: "bg-indigo-500",
-        percentage: (magnesiumAmount / 10 / maxAmount) * 100
-      }
-    );
-  }
   
   if (!isAdvanced || !hydrationBottle || !fuelingBottle) {
     // Standard single bottle view
@@ -297,30 +267,6 @@ const FormulaResult: React.FC<FormulaResultProps> = ({ formula, isMetric, isAdva
                     Sodium Citrate
                   </span>
                   <span>{hydrationBottle.sodiumCitrateAmount} g</span>
-                </div>
-                
-                <div className="flex items-center justify-between text-sm font-medium">
-                  <span className="flex items-center gap-1">
-                    <span className="inline-block w-3 h-3 rounded-full bg-purple-500"></span>
-                    Potassium
-                  </span>
-                  <span>{hydrationBottle.potassiumAmount} mg</span>
-                </div>
-                
-                <div className="flex items-center justify-between text-sm font-medium">
-                  <span className="flex items-center gap-1">
-                    <span className="inline-block w-3 h-3 rounded-full bg-orange-500"></span>
-                    Calcium
-                  </span>
-                  <span>{hydrationBottle.calciumAmount} mg</span>
-                </div>
-                
-                <div className="flex items-center justify-between text-sm font-medium">
-                  <span className="flex items-center gap-1">
-                    <span className="inline-block w-3 h-3 rounded-full bg-indigo-500"></span>
-                    Magnesium
-                  </span>
-                  <span>{hydrationBottle.magnesiumAmount} mg</span>
                 </div>
                 
                 <div className="flex items-center justify-between text-sm font-medium">
