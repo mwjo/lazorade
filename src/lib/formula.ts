@@ -1,3 +1,4 @@
+
 export interface FormulaParams {
   distance: number; // in km
   temperature: number; // in Celsius
@@ -7,18 +8,13 @@ export interface FormulaParams {
   // Advanced parameters
   isAdvanced?: boolean; // whether to use advanced formula calculation
   carbRatio?: string; // 'maltodextrin-dominant' (1:0.8), 'balanced' (1:1)
-  caffeineSensitivity?: string; // 'low', 'medium', 'high'
   carbAdaptation?: string; // 'low', 'medium', 'high'
   separateBottles?: boolean; // whether to separate hydration and fueling
-  formulaType?: string; // 'hypotonic', 'isotonic', 'hypertonic'
 }
 
 export interface FormulaResult {
   waterAmount: number; // in ml
   sodiumCitrateAmount: number; // in g
-  potassiumAmount: number; // in mg
-  calciumAmount: number; // in mg
-  magnesiumAmount: number; // in mg
   citricAcidAmount: number; // in g
   maltodextrinAmount: number; // in g
   fructoseAmount: number; // in g
@@ -32,9 +28,6 @@ export interface FormulaResult {
   hydrationBottle?: {
     waterAmount: number;
     sodiumCitrateAmount: number;
-    potassiumAmount: number;
-    calciumAmount: number;
-    magnesiumAmount: number;
     citricAcidAmount: number;
     osmolality: number;
   };
@@ -60,10 +53,8 @@ export function calculateFormula(params: FormulaParams): FormulaResult {
     bottleSize,
     isAdvanced = false,
     carbRatio = 'maltodextrin-dominant',
-    caffeineSensitivity = 'medium',
     carbAdaptation = 'medium',
-    separateBottles = false,
-    formulaType = 'isotonic'
+    separateBottles = false
   } = params;
   
   // Calculate estimated ride time based on distance and intensity (in hours)
@@ -150,11 +141,6 @@ export function calculateFormula(params: FormulaParams): FormulaResult {
   const sodiumCitratePerLiter = (sodiumPerLiter / 586) * 2.5; // g/L
   let sodiumCitrateAmount = (sodiumCitratePerLiter * waterAmount / 1000) * bottleMultiplier;
   
-  // Additional electrolytes for advanced formula
-  let potassiumAmount = isAdvanced ? (100 * waterAmount / 1000) * bottleMultiplier : 0; // 100mg/L
-  let calciumAmount = isAdvanced ? (50 * waterAmount / 1000) * bottleMultiplier : 0; // 50mg/L
-  let magnesiumAmount = isAdvanced ? (30 * waterAmount / 1000) * bottleMultiplier : 0; // 30mg/L
-  
   // Calculate citric acid (pH balancing)
   // Base calculation on carbohydrate content
   let citricAcidAmount = (totalCarbs / 30) * bottleMultiplier;
@@ -163,19 +149,13 @@ export function calculateFormula(params: FormulaParams): FormulaResult {
   maltodextrinAmount = maltodextrinAmount * bottleMultiplier;
   fructoseAmount = fructoseAmount * bottleMultiplier;
   
-  // Calculate caffeine - based on intensity, ride length and sensitivity
+  // Calculate caffeine - based on intensity and ride length
   let caffeineAmount = 0;
   
   if (totalRideTime >= 1) { // Only add caffeine for rides over 1 hour
     caffeineAmount = 50 * totalRideTime; // 50mg per hour
     
     if (intensity === "high") caffeineAmount *= 1.5; // More for high intensity
-    
-    // Adjust for caffeine sensitivity
-    if (isAdvanced) {
-      if (caffeineSensitivity === "high") caffeineAmount *= 0.7;
-      if (caffeineSensitivity === "low") caffeineAmount *= 1.3;
-    }
     
     // Cap caffeine at reasonable amounts
     caffeineAmount = Math.min(caffeineAmount, 200); // Max 200mg
@@ -187,33 +167,8 @@ export function calculateFormula(params: FormulaParams): FormulaResult {
     // Simplified osmolality calculation
     // Consider each component's contribution to osmolality
     const carbOsmolality = (maltodextrinAmount + fructoseAmount) * 5; // Approx contribution
-    const electrolyteOsmolality = (sodiumCitrateAmount * 1000) * 3 + potassiumAmount * 0.5 + calciumAmount * 0.5 + magnesiumAmount * 0.5;
+    const electrolyteOsmolality = (sodiumCitrateAmount * 1000) * 3;
     osmolality = Math.round((carbOsmolality + electrolyteOsmolality) / waterAmount * 1000);
-    
-    // Adjust formula based on target osmolality if specified
-    if (formulaType === "hypotonic") {
-      // Aim for <270 mOsm/kg
-      if (osmolality > 270) {
-        const reductionFactor = 270 / osmolality;
-        maltodextrinAmount *= reductionFactor;
-        fructoseAmount *= reductionFactor;
-        osmolality = 270;
-      }
-    } else if (formulaType === "isotonic") {
-      // Aim for 270-290 mOsm/kg
-      if (osmolality > 290) {
-        const reductionFactor = 290 / osmolality;
-        maltodextrinAmount *= reductionFactor;
-        fructoseAmount *= reductionFactor;
-        osmolality = 290;
-      } else if (osmolality < 270) {
-        const increaseFactor = 270 / osmolality;
-        sodiumCitrateAmount *= increaseFactor;
-        potassiumAmount *= increaseFactor;
-        osmolality = 270;
-      }
-    }
-    // For hypertonic, we don't need to adjust
   }
   
   // Separate bottles calculation (if enabled)
@@ -225,12 +180,8 @@ export function calculateFormula(params: FormulaParams): FormulaResult {
     hydrationBottle = {
       waterAmount: bottleSize,
       sodiumCitrateAmount: sodiumCitrateAmount * 1.2, // Increase electrolytes slightly
-      potassiumAmount: potassiumAmount * 1.2,
-      calciumAmount: calciumAmount * 1.2,
-      magnesiumAmount: magnesiumAmount * 1.2,
       citricAcidAmount: citricAcidAmount * 0.5, // Reduce acid for palatability
-      osmolality: Math.round((sodiumCitrateAmount * 1.2 * 1000 * 3 + potassiumAmount * 1.2 * 0.5 + 
-                   calciumAmount * 1.2 * 0.5 + magnesiumAmount * 1.2 * 0.5) / bottleSize * 1000)
+      osmolality: Math.round((sodiumCitrateAmount * 1.2 * 1000 * 3) / bottleSize * 1000)
     };
     
     // Fueling bottle: focus on carbs and caffeine
@@ -248,9 +199,6 @@ export function calculateFormula(params: FormulaParams): FormulaResult {
   maltodextrinAmount = Math.round(maltodextrinAmount * 10) / 10;
   fructoseAmount = Math.round(fructoseAmount * 10) / 10;
   sodiumCitrateAmount = Math.round(sodiumCitrateAmount * 10) / 10;
-  potassiumAmount = Math.round(potassiumAmount);
-  calciumAmount = Math.round(calciumAmount);
-  magnesiumAmount = Math.round(magnesiumAmount);
   citricAcidAmount = Math.round(citricAcidAmount * 10) / 10;
   caffeineAmount = Math.round(caffeineAmount);
   
@@ -260,9 +208,6 @@ export function calculateFormula(params: FormulaParams): FormulaResult {
   // Round values in the bottles if they exist
   if (hydrationBottle) {
     hydrationBottle.sodiumCitrateAmount = Math.round(hydrationBottle.sodiumCitrateAmount * 10) / 10;
-    hydrationBottle.potassiumAmount = Math.round(hydrationBottle.potassiumAmount);
-    hydrationBottle.calciumAmount = Math.round(hydrationBottle.calciumAmount);
-    hydrationBottle.magnesiumAmount = Math.round(hydrationBottle.magnesiumAmount);
     hydrationBottle.citricAcidAmount = Math.round(hydrationBottle.citricAcidAmount * 10) / 10;
   }
   
@@ -275,9 +220,6 @@ export function calculateFormula(params: FormulaParams): FormulaResult {
   return {
     waterAmount,
     sodiumCitrateAmount,
-    potassiumAmount,
-    calciumAmount,
-    magnesiumAmount,
     citricAcidAmount,
     maltodextrinAmount,
     fructoseAmount,

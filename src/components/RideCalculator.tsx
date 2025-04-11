@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { 
   Card, 
@@ -42,9 +43,8 @@ import {
   Share2,
   ChevronDown,
   Beaker,
-  AlertCircle,
-  Sparkles,
-  TestTube
+  TestTube,
+  Sparkles
 } from "lucide-react";
 import FormulaResult from "./FormulaResult";
 import { calculateFormula, FormulaResult as FormulaResultType } from "@/lib/formula";
@@ -58,10 +58,8 @@ interface SavedSettings {
   isMetric: boolean;
   isAdvanced: boolean;
   carbRatio: string;
-  caffeineSensitivity: string;
   carbAdaptation: string;
   separateBottles: boolean;
-  formulaType: string;
 }
 
 const STORAGE_KEY = 'ride-fuel-calculator-settings';
@@ -78,10 +76,8 @@ const RideCalculator = () => {
 
   const [isAdvanced, setIsAdvanced] = useState<boolean>(false);
   const [carbRatio, setCarbRatio] = useState<string>("maltodextrin-dominant");
-  const [caffeineSensitivity, setCaffeineSensitivity] = useState<string>("medium");
   const [carbAdaptation, setCarbAdaptation] = useState<string>("medium");
   const [separateBottles, setSeparateBottles] = useState<boolean>(false);
-  const [formulaType, setFormulaType] = useState<string>("isotonic");
 
   const [formula, setFormula] = useState<FormulaResultType | null>(null);
   const [isAdvancedOpen, setIsAdvancedOpen] = useState<boolean>(false);
@@ -103,10 +99,8 @@ const RideCalculator = () => {
         if ('isAdvanced' in parsedSettings) {
           setIsAdvanced(parsedSettings.isAdvanced);
           setCarbRatio(parsedSettings.carbRatio || "maltodextrin-dominant");
-          setCaffeineSensitivity(parsedSettings.caffeineSensitivity || "medium");
           setCarbAdaptation(parsedSettings.carbAdaptation || "medium");
           setSeparateBottles(parsedSettings.separateBottles || false);
-          setFormulaType(parsedSettings.formulaType || "isotonic");
         }
         
         setTimeout(() => {
@@ -119,10 +113,8 @@ const RideCalculator = () => {
             parsedSettings.isMetric,
             parsedSettings.isAdvanced || false,
             parsedSettings.carbRatio || "maltodextrin-dominant",
-            parsedSettings.caffeineSensitivity || "medium",
             parsedSettings.carbAdaptation || "medium",
-            parsedSettings.separateBottles || false,
-            parsedSettings.formulaType || "isotonic"
+            parsedSettings.separateBottles || false
           );
         }, 0);
       } catch (error) {
@@ -143,10 +135,8 @@ const RideCalculator = () => {
       isMetric,
       isAdvanced,
       carbRatio,
-      caffeineSensitivity,
       carbAdaptation,
-      separateBottles,
-      formulaType
+      separateBottles
     };
     
     localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
@@ -159,10 +149,8 @@ const RideCalculator = () => {
     isMetric,
     isAdvanced,
     carbRatio,
-    caffeineSensitivity,
     carbAdaptation,
-    separateBottles,
-    formulaType
+    separateBottles
   ]);
 
   const calculateResultWithCurrentSettings = (
@@ -174,10 +162,8 @@ const RideCalculator = () => {
     currentIsMetric: boolean,
     currentIsAdvanced: boolean,
     currentCarbRatio: string,
-    currentCaffeineSensitivity: string,
     currentCarbAdaptation: string,
-    currentSeparateBottles: boolean,
-    currentFormulaType: string
+    currentSeparateBottles: boolean
   ) => {
     try {
       const result = calculateFormula({
@@ -188,10 +174,8 @@ const RideCalculator = () => {
         bottleSize: currentBottleSize,
         isAdvanced: currentIsAdvanced,
         carbRatio: currentCarbRatio,
-        caffeineSensitivity: currentCaffeineSensitivity,
         carbAdaptation: currentCarbAdaptation,
-        separateBottles: currentSeparateBottles,
-        formulaType: currentFormulaType
+        separateBottles: currentSeparateBottles
       });
 
       setFormula(result);
@@ -221,10 +205,8 @@ const RideCalculator = () => {
       isMetric,
       isAdvanced,
       carbRatio,
-      caffeineSensitivity,
       carbAdaptation,
-      separateBottles,
-      formulaType
+      separateBottles
     );
   };
 
@@ -412,22 +394,6 @@ const RideCalculator = () => {
                     </div>
                     
                     <div>
-                      <Label htmlFor="caffeine-sensitivity" className="flex items-center gap-2 mb-2">
-                        <AlertCircle className="h-4 w-4" /> Caffeine Sensitivity
-                      </Label>
-                      <Select value={caffeineSensitivity} onValueChange={setCaffeineSensitivity}>
-                        <SelectTrigger id="caffeine-sensitivity">
-                          <SelectValue placeholder="Select caffeine sensitivity" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="low">Low (Metabolizes Quickly)</SelectItem>
-                          <SelectItem value="medium">Medium (Average Sensitivity)</SelectItem>
-                          <SelectItem value="high">High (Sensitive to Caffeine)</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    
-                    <div>
                       <Label htmlFor="carb-adaptation" className="flex items-center gap-2 mb-2">
                         <Sparkles className="h-4 w-4" /> Carb Training Adaptation
                       </Label>
@@ -443,25 +409,6 @@ const RideCalculator = () => {
                       </Select>
                       <p className="text-xs text-muted-foreground mt-1">
                         Your ability to process carbs during exercise
-                      </p>
-                    </div>
-                    
-                    <div>
-                      <Label htmlFor="formula-type" className="flex items-center gap-2 mb-2">
-                        <Beaker className="h-4 w-4" /> Formula Type
-                      </Label>
-                      <Select value={formulaType} onValueChange={setFormulaType}>
-                        <SelectTrigger id="formula-type">
-                          <SelectValue placeholder="Select formula type" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="hypotonic">Hypotonic (Faster Absorption)</SelectItem>
-                          <SelectItem value="isotonic">Isotonic (Balanced)</SelectItem>
-                          <SelectItem value="hypertonic">Hypertonic (Higher Energy)</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Based on osmolality - affects absorption rate vs. energy delivery
                       </p>
                     </div>
                     
