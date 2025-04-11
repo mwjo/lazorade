@@ -1,4 +1,3 @@
-
 export interface FormulaParams {
   distance: number; // in km
   temperature: number; // in Celsius
@@ -23,6 +22,7 @@ export interface FormulaResult {
   totalRideTime: number; // in hours
   totalCalories: number; // calories
   bottlesNeeded: number; // total bottles required for the ride
+  totalWaterRequired: number; // total water needed for the entire ride in ml
   osmolality?: number; // in mOsm/kg (for advanced view)
   // Separate bottle results (if separateBottles is true)
   hydrationBottle?: {
@@ -228,6 +228,7 @@ export function calculateFormula(params: FormulaParams): FormulaResult {
     totalRideTime,
     totalCalories,
     bottlesNeeded,
+    totalWaterRequired,
     osmolality,
     hydrationBottle,
     fuelingBottle
