@@ -109,11 +109,11 @@ export function calculateFormula(params: FormulaParams): FormulaResult {
     maltodextrinRatio = 0.5; // 1:1 (50% maltodextrin, 50% fructose)
   }
   
-  let maltodextrinAmount = totalCarbs * maltodextrinRatio;
-  let fructoseAmount = totalCarbs * (1 - maltodextrinRatio);
+  let totalMaltodextrin = totalCarbs * maltodextrinRatio;
+  let totalFructose = totalCarbs * (1 - maltodextrinRatio);
   
   // For backward compatibility
-  const sugarAmount = totalCarbs;
+  const totalSugar = totalCarbs;
   
   // Calculate water needed - based on the new requirement of 1L per 1.5 hours
   // Base water amount
@@ -148,28 +148,13 @@ export function calculateFormula(params: FormulaParams): FormulaResult {
     sodiumTempFactor = 1 + (Math.min(0.25, (temperature - 25) * 0.025));
   }
   
-  // Calculate per bottle amounts
-  const waterAmount = bottleSize;
+  // Calculate total sodium citrate needed
+  const totalSodiumCitrate = (sodiumCitratePerLiter * totalWaterRequired / 1000) * sodiumTempFactor;
   
-  // Calculate sodium citrate amount (adjusted for temperature)
-  let sodiumCitrateAmount = (sodiumCitratePerLiter * waterAmount / 1000) * sodiumTempFactor;
+  // Calculate total citric acid - 2g per 60g of sugar
+  const totalCitricAcid = (totalCarbs / 30); // 1g per 30g sugar
   
-  // Calculate citric acid - 2g per 60g of sugar
-  let citricAcidAmount = (totalCarbs / 30); // 1g per 30g sugar
-  
-  // Adjust maltodextrin and fructose for bottle size
-  let bottleMultiplier = 1;
-  if (totalWaterRequired > bottleSize) {
-    bottleMultiplier = bottleSize / totalWaterRequired;
-    // Cap the multiplier at 0.5 to avoid overly concentrated mixes
-    bottleMultiplier = Math.max(0.5, bottleMultiplier);
-  }
-  
-  maltodextrinAmount = maltodextrinAmount * bottleMultiplier;
-  fructoseAmount = fructoseAmount * bottleMultiplier;
-  citricAcidAmount = citricAcidAmount * bottleMultiplier;
-  
-  // Calculate caffeine - 60mg per hour with tolerance adjustment
+  // Calculate total caffeine - 60mg per hour with tolerance adjustment
   let caffeinePerHour = 60; // mg/hour base
   
   if (isAdvanced) {
@@ -180,13 +165,21 @@ export function calculateFormula(params: FormulaParams): FormulaResult {
     }
   }
   
-  let caffeineAmount = caffeinePerHour * totalRideTime;
+  let totalCaffeine = caffeinePerHour * totalRideTime;
   
   // Cap caffeine at reasonable amounts (400mg max for safety)
-  caffeineAmount = Math.min(caffeineAmount, 400);
+  totalCaffeine = Math.min(totalCaffeine, 400);
   
-  // Apply bottle multiplier to caffeine
-  caffeineAmount = caffeineAmount * bottleMultiplier;
+  // Per bottle amount calculations
+  const waterAmount = bottleSize;
+  
+  // Calculate per bottle ingredients
+  // Divide total ingredients by the number of bottles needed for the ride
+  let maltodextrinAmount = totalMaltodextrin / bottlesNeeded;
+  let fructoseAmount = totalFructose / bottlesNeeded;
+  let sodiumCitrateAmount = totalSodiumCitrate / bottlesNeeded;
+  let citricAcidAmount = totalCitricAcid / bottlesNeeded;
+  let caffeineAmount = totalCaffeine / bottlesNeeded;
   
   // Calculate osmolality (mOsm/kg) for advanced view
   let osmolality;
