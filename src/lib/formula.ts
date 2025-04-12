@@ -1,4 +1,3 @@
-
 export interface FormulaParams {
   duration: number; // in hours
   temperature: number; // in Celsius
@@ -222,7 +221,7 @@ export function calculateFormula(params: FormulaParams): FormulaResult {
     };
   }
   
-  // Round all values for better presentation
+  // Round values to 1 decimal place
   maltodextrinAmount = Math.round(maltodextrinAmount * 10) / 10;
   fructoseAmount = Math.round(fructoseAmount * 10) / 10;
   sodiumCitrateAmount = Math.round(sodiumCitrateAmount * 10) / 10;
@@ -250,7 +249,7 @@ export function calculateFormula(params: FormulaParams): FormulaResult {
     citricAcidAmount,
     maltodextrinAmount,
     fructoseAmount,
-    sugarAmount, // For backward compatibility
+    sugarAmount: Math.round((maltodextrinAmount + fructoseAmount) * 10) / 10, // Round the combined sugar amount to 1 decimal place
     caffeineAmount,
     totalRideTime,
     totalCalories,
