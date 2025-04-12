@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { 
   Card, 
@@ -43,7 +44,8 @@ import {
   ChevronDown,
   Beaker,
   TestTube,
-  Sparkles
+  Sparkles,
+  Coffee
 } from "lucide-react";
 import FormulaResult from "./FormulaResult";
 import { calculateFormula, FormulaResult as FormulaResultType } from "@/lib/formula";
@@ -59,6 +61,7 @@ interface SavedSettings {
   carbRatio: string;
   carbAdaptation: string;
   separateBottles: boolean;
+  caffeineTolerance?: string;
 }
 
 const STORAGE_KEY = 'ride-fuel-calculator-settings';
@@ -77,6 +80,7 @@ const RideCalculator = () => {
   const [carbRatio, setCarbRatio] = useState<string>("maltodextrin-dominant");
   const [carbAdaptation, setCarbAdaptation] = useState<string>("medium");
   const [separateBottles, setSeparateBottles] = useState<boolean>(false);
+  const [caffeineTolerance, setCaffeineTolerance] = useState<string>("medium");
 
   const [formula, setFormula] = useState<FormulaResultType | null>(null);
   const [isAdvancedOpen, setIsAdvancedOpen] = useState<boolean>(false);
@@ -100,6 +104,7 @@ const RideCalculator = () => {
           setCarbRatio(parsedSettings.carbRatio || "maltodextrin-dominant");
           setCarbAdaptation(parsedSettings.carbAdaptation || "medium");
           setSeparateBottles(parsedSettings.separateBottles || false);
+          setCaffeineTolerance(parsedSettings.caffeineTolerance || "medium");
         }
         
         setTimeout(() => {
@@ -113,7 +118,8 @@ const RideCalculator = () => {
             parsedSettings.isAdvanced || false,
             parsedSettings.carbRatio || "maltodextrin-dominant",
             parsedSettings.carbAdaptation || "medium",
-            parsedSettings.separateBottles || false
+            parsedSettings.separateBottles || false,
+            parsedSettings.caffeineTolerance || "medium"
           );
         }, 0);
       } catch (error) {
@@ -135,7 +141,8 @@ const RideCalculator = () => {
       isAdvanced,
       carbRatio,
       carbAdaptation,
-      separateBottles
+      separateBottles,
+      caffeineTolerance
     };
     
     localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
@@ -149,7 +156,8 @@ const RideCalculator = () => {
     isAdvanced,
     carbRatio,
     carbAdaptation,
-    separateBottles
+    separateBottles,
+    caffeineTolerance
   ]);
 
   const calculateResultWithCurrentSettings = (
@@ -162,7 +170,8 @@ const RideCalculator = () => {
     currentIsAdvanced: boolean,
     currentCarbRatio: string,
     currentCarbAdaptation: string,
-    currentSeparateBottles: boolean
+    currentSeparateBottles: boolean,
+    currentCaffeineTolerance: string
   ) => {
     try {
       const result = calculateFormula({
@@ -174,7 +183,8 @@ const RideCalculator = () => {
         isAdvanced: currentIsAdvanced,
         carbRatio: currentCarbRatio,
         carbAdaptation: currentCarbAdaptation,
-        separateBottles: currentSeparateBottles
+        separateBottles: currentSeparateBottles,
+        caffeineTolerance: currentCaffeineTolerance
       });
 
       setFormula(result);
@@ -205,7 +215,8 @@ const RideCalculator = () => {
       isAdvanced,
       carbRatio,
       carbAdaptation,
-      separateBottles
+      separateBottles,
+      caffeineTolerance
     );
   };
 
@@ -406,6 +417,25 @@ const RideCalculator = () => {
                       </Select>
                       <p className="text-xs text-muted-foreground mt-1">
                         Your ability to process carbs during exercise
+                      </p>
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="caffeine-tolerance" className="flex items-center gap-2 mb-2">
+                        <Coffee className="h-4 w-4" /> Caffeine Tolerance
+                      </Label>
+                      <Select value={caffeineTolerance} onValueChange={setCaffeineTolerance}>
+                        <SelectTrigger id="caffeine-tolerance">
+                          <SelectValue placeholder="Select caffeine tolerance" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="low">Low (Sensitive to caffeine)</SelectItem>
+                          <SelectItem value="medium">Medium (Average response)</SelectItem>
+                          <SelectItem value="high">High (Regular caffeine user)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        How well you tolerate caffeine during exercise
                       </p>
                     </div>
                     

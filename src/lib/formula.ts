@@ -10,6 +10,7 @@ export interface FormulaParams {
   carbRatio?: string; // 'maltodextrin-dominant' (1:0.8), 'balanced' (1:1)
   carbAdaptation?: string; // 'low', 'medium', 'high'
   separateBottles?: boolean; // whether to separate hydration and fueling
+  caffeineTolerance?: string; // 'low', 'medium', 'high'
 }
 
 export interface FormulaResult {
@@ -55,42 +56,26 @@ export function calculateFormula(params: FormulaParams): FormulaResult {
     isAdvanced = false,
     carbRatio = 'maltodextrin-dominant',
     carbAdaptation = 'medium',
-    separateBottles = false
+    separateBottles = false,
+    caffeineTolerance = 'medium'
   } = params;
   
-  // Use the provided duration directly instead of calculating from distance
+  // Use the provided duration directly
   const totalRideTime = duration;
   
-  // Calculate carbohydrate amounts with progressive approach
-  // Base carb amount depends on intensity
-  let baseCarbs = 60; // g/hour - base amount
-  if (intensity === "low") baseCarbs = 45;
-  if (intensity === "high") baseCarbs = 75;
+  // Calculate carbohydrate amounts - base 60g per hour
+  let carbsPerHour = 60; // g/hour - standard amount
   
-  // Adjust based on carb adaptation level (for advanced mode)
-  if (isAdvanced && carbAdaptation === "high") {
-    baseCarbs *= 1.25; // Up to 90-100g/hr for well-adapted athletes
-  } else if (isAdvanced && carbAdaptation === "low") {
-    baseCarbs *= 0.8; // Reduce for those with less adaptation
-  }
+  // Adjust based on intensity only if not "medium"
+  if (intensity === "low") carbsPerHour = 45;
+  if (intensity === "high") carbsPerHour = 75;
   
-  // Temperature adjustment - reduce carbs at higher temperatures
+  // Temperature adjustment for carbs
   let tempAdjustment = 1;
   if (temperature > 25) {
     // Reduce carbs by up to 20% as temperature increases (max reduction at 35°C)
     tempAdjustment = 1 - Math.min(0.2, (temperature - 25) * 0.02);
   }
-  
-  // Progressive scaling - lower carbs for shorter rides, scaling up to the full amount
-  // for longer rides (full amount after 2 hours)
-  let progressiveFactor = 1;
-  if (totalRideTime <= 2) {
-    // Scale from 50% at 0 hours to 100% at 2 hours
-    progressiveFactor = 0.5 + (totalRideTime / 4);
-  }
-  
-  // Apply adjustments to base carbs
-  let carbsPerHour = baseCarbs * tempAdjustment * progressiveFactor;
   
   // Calculate total carbs needed for the ride
   let totalCarbs = 0;
@@ -99,38 +84,30 @@ export function calculateFormula(params: FormulaParams): FormulaResult {
   if (totalRideTime <= 2) {
     // First hour carbs (50-75% of full amount depending on duration)
     const firstHourFactor = 0.5 + (Math.min(1, totalRideTime) / 4);
-    totalCarbs += baseCarbs * tempAdjustment * firstHourFactor * Math.min(1, totalRideTime);
+    totalCarbs += carbsPerHour * tempAdjustment * firstHourFactor * Math.min(1, totalRideTime);
     
     // Second hour carbs (75-100% of full amount depending on remaining duration)
     if (totalRideTime > 1) {
       const secondHourFactor = 0.75 + (Math.min(1, totalRideTime - 1) / 4);
-      totalCarbs += baseCarbs * tempAdjustment * secondHourFactor * Math.min(1, totalRideTime - 1);
+      totalCarbs += carbsPerHour * tempAdjustment * secondHourFactor * Math.min(1, totalRideTime - 1);
     }
   }
   // For rides over 2 hours
   else {
-    // First hour: 50% of adjusted base
-    totalCarbs += baseCarbs * tempAdjustment * 0.5;
+    // First hour: 50% of the standard amount
+    totalCarbs += carbsPerHour * tempAdjustment * 0.5;
     
-    // Second hour: 75% of adjusted base
-    totalCarbs += baseCarbs * tempAdjustment * 0.75;
+    // Second hour: 75% of the standard amount
+    totalCarbs += carbsPerHour * tempAdjustment * 0.75;
     
-    // Remaining hours: full adjusted base amount
-    totalCarbs += baseCarbs * tempAdjustment * (totalRideTime - 2);
+    // Remaining hours: full standard amount
+    totalCarbs += carbsPerHour * tempAdjustment * (totalRideTime - 2);
   }
-  
-  // Cap at reasonable amounts based on adaptation
-  const carbCap = isAdvanced ? 
-    (carbAdaptation === "high" ? 120 : carbAdaptation === "medium" ? 90 : 70) : 
-    90; // Default cap at 90g in basic mode
-    
-  totalCarbs = Math.min(totalCarbs, carbCap * totalRideTime);
   
   // Split carbs based on the selected ratio
   let maltodextrinRatio = 0.56; // Default 1:0.8 maltodextrin:fructose (56% maltodextrin, 44% fructose)
-  if (isAdvanced) {
-    if (carbRatio === "balanced") maltodextrinRatio = 0.5; // 1:1 (50% maltodextrin, 50% fructose)
-    // Only these two options are now available
+  if (isAdvanced && carbRatio === "balanced") {
+    maltodextrinRatio = 0.5; // 1:1 (50% maltodextrin, 50% fructose)
   }
   
   let maltodextrinAmount = totalCarbs * maltodextrinRatio;
@@ -139,17 +116,21 @@ export function calculateFormula(params: FormulaParams): FormulaResult {
   // For backward compatibility
   const sugarAmount = totalCarbs;
   
-  // Calculate water needed
-  // Base water amount for electrolytes
-  let waterRequiredPerHour = 500; // ml/hour base rate
+  // Calculate water needed - based on the new requirement of 1L per 1.5 hours
+  // Base water amount
+  let waterRequiredPerHour = 667; // ml/hour (1000ml / 1.5 hours)
   
   // Adjust for temperature
-  if (temperature > 25) waterRequiredPerHour += (temperature - 25) * 20; // 20ml more per degree over 25C
-  if (temperature < 15) waterRequiredPerHour -= (15 - temperature) * 10; // 10ml less per degree under 15C
+  if (temperature > 25) {
+    // Increase to 1L per hour in very hot temperatures
+    // Linear increase from 667ml to 1000ml between 25°C and 35°C
+    const tempFactor = Math.min(1, (temperature - 25) / 10);
+    waterRequiredPerHour = 667 + (333 * tempFactor);
+  }
   
   // Adjust for sweat rate
   if (sweatRate === "low") waterRequiredPerHour *= 0.85;
-  if (sweatRate === "high") waterRequiredPerHour *= 1.25;
+  if (sweatRate === "high") waterRequiredPerHour *= 1.15;
   
   // Total water needed for the ride
   let totalWaterRequired = waterRequiredPerHour * totalRideTime;
@@ -157,7 +138,27 @@ export function calculateFormula(params: FormulaParams): FormulaResult {
   // Calculate total bottles needed
   const bottlesNeeded = Math.ceil(totalWaterRequired / bottleSize);
   
-  // Adjust for bottle size
+  // Calculate sodium amount (via sodium citrate)
+  // Base: 3.8g sodium citrate per liter (provides 1000mg sodium)
+  const sodiumCitratePerLiter = 3.8; // g/L
+  
+  // Adjust for temperature - increase sodium in hot conditions
+  let sodiumTempFactor = 1;
+  if (temperature > 25) {
+    // Increase sodium by up to 25% in hot conditions
+    sodiumTempFactor = 1 + (Math.min(0.25, (temperature - 25) * 0.025));
+  }
+  
+  // Calculate per bottle amounts
+  const waterAmount = bottleSize;
+  
+  // Calculate sodium citrate amount (adjusted for temperature)
+  let sodiumCitrateAmount = (sodiumCitratePerLiter * waterAmount / 1000) * sodiumTempFactor;
+  
+  // Calculate citric acid - 2g per 60g of sugar
+  let citricAcidAmount = (totalCarbs / 30); // 1g per 30g sugar
+  
+  // Adjust maltodextrin and fructose for bottle size
   let bottleMultiplier = 1;
   if (totalWaterRequired > bottleSize) {
     bottleMultiplier = bottleSize / totalWaterRequired;
@@ -165,40 +166,33 @@ export function calculateFormula(params: FormulaParams): FormulaResult {
     bottleMultiplier = Math.max(0.5, bottleMultiplier);
   }
   
-  // Fixed bottle size
-  const waterAmount = bottleSize;
-  
-  // Calculate electrolytes
-  // Sodium (via sodium citrate)
-  const sodiumPerLiter = intensity === "high" ? 1400 : 1000; // mg/L
-  const sodiumCitratePerLiter = (sodiumPerLiter / 586) * 2.5; // g/L
-  let sodiumCitrateAmount = (sodiumCitratePerLiter * waterAmount / 1000) * bottleMultiplier;
-  
-  // Calculate citric acid (pH balancing)
-  // Base calculation on carbohydrate content
-  let citricAcidAmount = (totalCarbs / 30) * bottleMultiplier;
-  
-  // Adjust maltodextrin and fructose by bottle multiplier
   maltodextrinAmount = maltodextrinAmount * bottleMultiplier;
   fructoseAmount = fructoseAmount * bottleMultiplier;
+  citricAcidAmount = citricAcidAmount * bottleMultiplier;
   
-  // Calculate caffeine - based on intensity and ride length
-  let caffeineAmount = 0;
+  // Calculate caffeine - 60mg per hour with tolerance adjustment
+  let caffeinePerHour = 60; // mg/hour base
   
-  if (totalRideTime >= 1) { // Only add caffeine for rides over 1 hour
-    caffeineAmount = 50 * totalRideTime; // 50mg per hour
-    
-    if (intensity === "high") caffeineAmount *= 1.5; // More for high intensity
-    
-    // Cap caffeine at reasonable amounts
-    caffeineAmount = Math.min(caffeineAmount, 200); // Max 200mg
+  if (isAdvanced) {
+    if (caffeineTolerance === "low") {
+      caffeinePerHour = 40; // Lower for those with low tolerance
+    } else if (caffeineTolerance === "high") {
+      caffeinePerHour = 80; // Higher for those with high tolerance
+    }
   }
+  
+  let caffeineAmount = caffeinePerHour * totalRideTime;
+  
+  // Cap caffeine at reasonable amounts (400mg max for safety)
+  caffeineAmount = Math.min(caffeineAmount, 400);
+  
+  // Apply bottle multiplier to caffeine
+  caffeineAmount = caffeineAmount * bottleMultiplier;
   
   // Calculate osmolality (mOsm/kg) for advanced view
   let osmolality;
   if (isAdvanced) {
     // Simplified osmolality calculation
-    // Consider each component's contribution to osmolality
     const carbOsmolality = (maltodextrinAmount + fructoseAmount) * 5; // Approx contribution
     const electrolyteOsmolality = (sodiumCitrateAmount * 1000) * 3;
     osmolality = Math.round((carbOsmolality + electrolyteOsmolality) / waterAmount * 1000);
