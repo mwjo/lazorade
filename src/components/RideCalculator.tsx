@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { 
   Card, 
@@ -44,8 +45,7 @@ import {
   Beaker,
   TestTube,
   Sparkles,
-  Coffee,
-  Zap
+  Coffee
 } from "lucide-react";
 import FormulaResult from "./FormulaResult";
 import { calculateFormula, FormulaResult as FormulaResultType } from "@/lib/formula";
@@ -241,14 +241,12 @@ const RideCalculator = () => {
 
   return (
     <div className="w-full max-w-4xl mx-auto p-4">
-      <Card className="shadow-lg electric-border">
-        <CardHeader className="lazorade-card-header">
+      <Card className="shadow-lg">
+        <CardHeader className="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900 dark:to-blue-800">
           <div className="flex items-center justify-between flex-wrap gap-4">
             <div>
-              <CardTitle className="text-3xl font-bold flex items-center gap-2">
-                <Zap className="h-8 w-8 text-secondary" /> 
-                <span className="lazorade-gradient-text">Ride Fuel</span> 
-                <span className="lazorade-blue-gradient-text">Formula</span>
+              <CardTitle className="text-3xl font-bold text-primary flex items-center gap-2">
+                <Bike className="h-8 w-8" /> Ride Fuel Formula
               </CardTitle>
               <CardDescription className="text-lg mt-2">
                 Calculate your perfect electrolyte drink for cycling
@@ -261,12 +259,12 @@ const RideCalculator = () => {
                   checked={isAdvanced}
                   onCheckedChange={toggleAdvancedMode}
                 />
-                <Label htmlFor="advanced-mode" className="flex items-center gap-1 text-white/90">
-                  <Beaker className="h-4 w-4 text-accent" />
+                <Label htmlFor="advanced-mode" className="flex items-center gap-1">
+                  <Beaker className="h-4 w-4" />
                   Advanced Mode
                 </Label>
               </div>
-              <Button variant="outline" onClick={handleUnitToggle} className="border-secondary/30 text-white/90 hover:bg-secondary/10">
+              <Button variant="outline" onClick={handleUnitToggle}>
                 {isMetric ? "Switch to Imperial" : "Switch to Metric"}
               </Button>
             </div>
@@ -278,8 +276,8 @@ const RideCalculator = () => {
             <div className="space-y-4">
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <Label htmlFor="duration" className="flex items-center gap-2 text-white/90">
-                    <Clock className="h-4 w-4 text-accent" /> Ride Duration
+                  <Label htmlFor="duration" className="flex items-center gap-2">
+                    <Clock className="h-4 w-4" /> Ride Duration
                   </Label>
                   <span className="text-muted-foreground text-sm">
                     {duration} {duration === 1 ? "hour" : "hours"}
@@ -298,8 +296,8 @@ const RideCalculator = () => {
               
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <Label htmlFor="temperature" className="flex items-center gap-2 text-white/90">
-                    <Thermometer className="h-4 w-4 text-accent" /> Temperature
+                  <Label htmlFor="temperature" className="flex items-center gap-2">
+                    <Thermometer className="h-4 w-4" /> Temperature
                   </Label>
                   <span className="text-muted-foreground text-sm">
                     {temperature}° {isMetric ? "C" : "F"}
@@ -317,11 +315,11 @@ const RideCalculator = () => {
               </div>
               
               <div>
-                <Label htmlFor="sweat-rate" className="flex items-center gap-2 mb-2 text-white/90">
-                  <Droplet className="h-4 w-4 text-accent" /> Sweat Rate
+                <Label htmlFor="sweat-rate" className="flex items-center gap-2 mb-2">
+                  <Droplet className="h-4 w-4" /> Sweat Rate
                 </Label>
                 <Select value={sweatRate} onValueChange={setSweatRate}>
-                  <SelectTrigger id="sweat-rate" className="bg-background/10 border-secondary/30">
+                  <SelectTrigger id="sweat-rate">
                     <SelectValue placeholder="Select sweat rate" />
                   </SelectTrigger>
                   <SelectContent>
@@ -333,11 +331,11 @@ const RideCalculator = () => {
               </div>
               
               <div>
-                <Label htmlFor="intensity" className="flex items-center gap-2 mb-2 text-white/90">
-                  <Gauge className="h-4 w-4 text-accent" /> Ride Intensity
+                <Label htmlFor="intensity" className="flex items-center gap-2 mb-2">
+                  <Gauge className="h-4 w-4" /> Ride Intensity
                 </Label>
                 <Select value={intensity} onValueChange={setIntensity}>
-                  <SelectTrigger id="intensity" className="bg-background/10 border-secondary/30">
+                  <SelectTrigger id="intensity">
                     <SelectValue placeholder="Select intensity" />
                   </SelectTrigger>
                   <SelectContent>
@@ -350,15 +348,15 @@ const RideCalculator = () => {
               
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <Label htmlFor="bottle-size" className="flex items-center gap-2 text-white/90">
-                    <Droplet className="h-4 w-4 text-accent" /> Bottle Size
+                  <Label htmlFor="bottle-size" className="flex items-center gap-2">
+                    <Droplet className="h-4 w-4" /> Bottle Size
                   </Label>
                   <span className="text-muted-foreground text-sm">
                     {bottleSize} ml
                   </span>
                 </div>
                 <Select value={bottleSize.toString()} onValueChange={(value) => setBottleSize(Number(value))}>
-                  <SelectTrigger id="bottle-size" className="bg-background/10 border-secondary/30">
+                  <SelectTrigger id="bottle-size">
                     <SelectValue placeholder="Select your bottle size" />
                   </SelectTrigger>
                   <SelectContent>
@@ -373,12 +371,12 @@ const RideCalculator = () => {
                 <Collapsible
                   open={isAdvancedOpen}
                   onOpenChange={setIsAdvancedOpen}
-                  className="mt-6 border rounded-md p-2 border-secondary/30 bg-background/5"
+                  className="mt-6 border rounded-md p-2"
                 >
                   <CollapsibleTrigger asChild>
-                    <Button variant="ghost" className="flex items-center justify-between w-full text-white/90">
+                    <Button variant="ghost" className="flex items-center justify-between w-full">
                       <span className="flex items-center gap-2">
-                        <Beaker className="h-4 w-4 text-secondary" />
+                        <Beaker className="h-4 w-4" />
                         Advanced Options
                       </span>
                       <ChevronDown className={`h-4 w-4 transition-transform ${isAdvancedOpen ? "transform rotate-180" : ""}`} />
@@ -386,11 +384,11 @@ const RideCalculator = () => {
                   </CollapsibleTrigger>
                   <CollapsibleContent className="mt-4 space-y-4 px-2">
                     <div>
-                      <Label htmlFor="carb-ratio" className="flex items-center gap-2 mb-2 text-white/90">
-                        <TestTube className="h-4 w-4 text-accent" /> Carbohydrate Ratio
+                      <Label htmlFor="carb-ratio" className="flex items-center gap-2 mb-2">
+                        <TestTube className="h-4 w-4" /> Carbohydrate Ratio
                       </Label>
                       <Select value={carbRatio} onValueChange={setCarbRatio}>
-                        <SelectTrigger id="carb-ratio" className="bg-background/10 border-secondary/30">
+                        <SelectTrigger id="carb-ratio">
                           <SelectValue placeholder="Select carb ratio" />
                         </SelectTrigger>
                         <SelectContent>
@@ -398,17 +396,17 @@ const RideCalculator = () => {
                           <SelectItem value="balanced">Balanced (1:1)</SelectItem>
                         </SelectContent>
                       </Select>
-                      <p className="text-xs text-white/60 mt-1">
+                      <p className="text-xs text-muted-foreground mt-1">
                         The ratio of glucose (maltodextrin) to fructose affects absorption rate
                       </p>
                     </div>
                     
                     <div>
-                      <Label htmlFor="carb-adaptation" className="flex items-center gap-2 mb-2 text-white/90">
-                        <Sparkles className="h-4 w-4 text-accent" /> Carb Training Adaptation
+                      <Label htmlFor="carb-adaptation" className="flex items-center gap-2 mb-2">
+                        <Sparkles className="h-4 w-4" /> Carb Training Adaptation
                       </Label>
                       <Select value={carbAdaptation} onValueChange={setCarbAdaptation}>
-                        <SelectTrigger id="carb-adaptation" className="bg-background/10 border-secondary/30">
+                        <SelectTrigger id="carb-adaptation">
                           <SelectValue placeholder="Select carb adaptation level" />
                         </SelectTrigger>
                         <SelectContent>
@@ -417,17 +415,17 @@ const RideCalculator = () => {
                           <SelectItem value="high">High (Well-trained gut)</SelectItem>
                         </SelectContent>
                       </Select>
-                      <p className="text-xs text-white/60 mt-1">
+                      <p className="text-xs text-muted-foreground mt-1">
                         Your ability to process carbs during exercise
                       </p>
                     </div>
                     
                     <div>
-                      <Label htmlFor="caffeine-tolerance" className="flex items-center gap-2 mb-2 text-white/90">
-                        <Coffee className="h-4 w-4 text-accent" /> Caffeine Tolerance
+                      <Label htmlFor="caffeine-tolerance" className="flex items-center gap-2 mb-2">
+                        <Coffee className="h-4 w-4" /> Caffeine Tolerance
                       </Label>
                       <Select value={caffeineTolerance} onValueChange={setCaffeineTolerance}>
-                        <SelectTrigger id="caffeine-tolerance" className="bg-background/10 border-secondary/30">
+                        <SelectTrigger id="caffeine-tolerance">
                           <SelectValue placeholder="Select caffeine tolerance" />
                         </SelectTrigger>
                         <SelectContent>
@@ -436,7 +434,7 @@ const RideCalculator = () => {
                           <SelectItem value="high">High (Regular caffeine user)</SelectItem>
                         </SelectContent>
                       </Select>
-                      <p className="text-xs text-white/60 mt-1">
+                      <p className="text-xs text-muted-foreground mt-1">
                         How well you tolerate caffeine during exercise
                       </p>
                     </div>
@@ -447,9 +445,9 @@ const RideCalculator = () => {
                         checked={separateBottles}
                         onCheckedChange={setSeparateBottles}
                       />
-                      <Label htmlFor="separate-bottles" className="text-white/90">Separate Hydration & Fueling Bottles</Label>
+                      <Label htmlFor="separate-bottles">Separate Hydration & Fueling Bottles</Label>
                     </div>
-                    <p className="text-xs text-white/60 mt-1">
+                    <p className="text-xs text-muted-foreground mt-1">
                       Pro approach: one bottle optimized for hydration, one for energy
                     </p>
                   </CollapsibleContent>
@@ -457,7 +455,7 @@ const RideCalculator = () => {
               )}
               
               <Button 
-                className="w-full mt-4 lazorade-button text-black font-bold"
+                className="w-full mt-4" 
                 size="lg" 
                 onClick={calculateResult}
               >
@@ -471,18 +469,18 @@ const RideCalculator = () => {
           </div>
         </CardContent>
         
-        <CardFooter className="bg-muted/10 flex justify-between gap-2 flex-wrap border-t border-secondary/20">
-          <div className="text-xs text-white/50">
+        <CardFooter className="bg-muted/50 flex justify-between gap-2 flex-wrap">
+          <div className="text-xs text-muted-foreground">
             {isAdvanced 
               ? "Advanced formulas based on latest sport science research for cyclists"
               : "Formulas based on sport science recommendations for cyclists"
             }
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" size="sm" className="border-secondary/30 text-white/90 hover:bg-secondary/10">
+            <Button variant="outline" size="sm">
               <Printer className="mr-2 h-4 w-4" /> Print
             </Button>
-            <Button variant="outline" size="sm" className="border-secondary/30 text-white/90 hover:bg-secondary/10">
+            <Button variant="outline" size="sm">
               <Share2 className="mr-2 h-4 w-4" /> Share
             </Button>
           </div>
