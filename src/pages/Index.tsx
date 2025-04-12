@@ -24,6 +24,59 @@ const Index = () => {
         </p>
       </header>
       
+      <section className="max-w-4xl mx-auto px-4 mb-12">
+        <h2 className="text-2xl font-bold text-center mb-6">Key Ingredients</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden transition-transform hover:scale-105">
+            <div className="p-3 flex justify-center bg-blue-50 dark:bg-blue-900/20 h-48">
+              <img 
+                src="/lovable-uploads/3cfd2a58-40bf-4017-8be8-b8633f7cca20.png" 
+                alt="Caffeine" 
+                className="h-full object-contain"
+              />
+            </div>
+            <div className="p-4">
+              <h3 className="font-bold text-lg mb-1">Caffeine</h3>
+              <p className="text-sm text-muted-foreground">
+                Enhances endurance performance and reduces perceived exertion during cycling.
+              </p>
+            </div>
+          </div>
+          
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden transition-transform hover:scale-105">
+            <div className="p-3 flex justify-center bg-yellow-50 dark:bg-yellow-900/20 h-48">
+              <img 
+                src="/lovable-uploads/59262418-bbb5-4eac-97d9-cc4e33bfd23a.png" 
+                alt="Citric Acid" 
+                className="h-full object-contain"
+              />
+            </div>
+            <div className="p-4">
+              <h3 className="font-bold text-lg mb-1">Citric Acid</h3>
+              <p className="text-sm text-muted-foreground">
+                Adds tartness and helps preserve the flavor profile of your personalized hydration mix.
+              </p>
+            </div>
+          </div>
+          
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden transition-transform hover:scale-105">
+            <div className="p-3 flex justify-center bg-blue-50 dark:bg-blue-900/20 h-48">
+              <img 
+                src="/lovable-uploads/1c71ebbf-55a3-4ada-a5c3-098db44cbf48.png" 
+                alt="Sodium Citrate" 
+                className="h-full object-contain"
+              />
+            </div>
+            <div className="p-4">
+              <h3 className="font-bold text-lg mb-1">Sodium Citrate</h3>
+              <p className="text-sm text-muted-foreground">
+                Essential electrolyte that aids in fluid absorption and prevents cramping during extended rides.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+      
       <main className="space-y-12">
         <RideCalculator />
         
