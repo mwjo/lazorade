@@ -14,13 +14,16 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 210 100% 50%;
+    /* Lazorade blue */
+    --primary: 196 100% 50%;
     --primary-foreground: 210 40% 98%;
 
-    --secondary: 84 86% 41%;
+    /* Lazorade green */
+    --secondary: 90 100% 45%;
     --secondary-foreground: 210 40% 98%;
 
-    --accent: 25 100% 48%;
+    /* Lazorade electric blue accent */
+    --accent: 196 80% 60%;
     --accent-foreground: 210 40% 98%;
 
     --muted: 210 40% 96.1%;
@@ -46,13 +49,16 @@
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 210 100% 50%;
+    /* Lazorade blue */
+    --primary: 196 100% 50%;
     --primary-foreground: 222.2 47.4% 11.2%;
 
-    --secondary: 84 86% 41%;
+    /* Lazorade green */
+    --secondary: 90 100% 45%;
     --secondary-foreground: 222.2 47.4% 11.2%;
 
-    --accent: 25 100% 48%;
+    /* Lazorade electric blue accent */
+    --accent: 196 80% 60%;
     --accent-foreground: 222.2 47.4% 11.2%;
 
     --muted: 217.2 32.6% 17.5%;
@@ -80,19 +86,87 @@
 
 /* Custom styles for the app */
 .gradient-bg {
-  background: linear-gradient(135deg, #e0f7fa 0%, #bbdefb 100%);
+  background: linear-gradient(135deg, #1a1a35 0%, #152947 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.gradient-bg::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 30% 20%, rgba(0, 195, 255, 0.05) 0%, transparent 25%),
+    radial-gradient(circle at 70% 60%, rgba(130, 255, 0, 0.05) 0%, transparent 25%);
+  z-index: 0;
 }
 
 .formula-card {
   transition: all 0.3s ease;
+  border: 1px solid rgba(130, 255, 0, 0.1);
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+  backdrop-filter: blur(10px);
 }
 
 .formula-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 25px -5px rgba(0, 195, 255, 0.2), 0 5px 10px -5px rgba(130, 255, 0, 0.1);
+  border: 1px solid rgba(130, 255, 0, 0.2);
 }
 
 .ingredient-bar {
   height: 24px;
   transition: width 0.5s ease-out;
+}
+
+.lazorade-gradient-text {
+  background: linear-gradient(90deg, #82ff00 0%, #c4ff65 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-fill-color: transparent;
+}
+
+.lazorade-blue-gradient-text {
+  background: linear-gradient(90deg, #00c3ff 0%, #65d8ff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-fill-color: transparent;
+}
+
+.lazorade-card-header {
+  background: linear-gradient(135deg, rgba(0, 195, 255, 0.1) 0%, rgba(130, 255, 0, 0.1) 100%);
+  border-bottom: 1px solid rgba(130, 255, 0, 0.1);
+}
+
+.lazorade-button {
+  background: linear-gradient(90deg, #82ff00 0%, #65bb00 100%);
+  box-shadow: 0 4px 12px rgba(130, 255, 0, 0.25);
+  transition: all 0.3s ease;
+}
+
+.lazorade-button:hover {
+  box-shadow: 0 6px 16px rgba(130, 255, 0, 0.35);
+  transform: translateY(-1px);
+}
+
+.lightning-divider {
+  position: relative;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(130, 255, 0, 0.5), transparent);
+}
+
+.lightning-divider::before {
+  content: "⚡";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  padding: 0 10px;
+  color: #00c3ff;
 }
