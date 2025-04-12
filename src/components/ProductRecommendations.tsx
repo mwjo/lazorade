@@ -19,21 +19,21 @@ const ProductRecommendations = () => {
       description: "Food Grade, Non-GMO - 2LB (32.4oz)",
       brand: "Nutricost",
       link: "https://www.amazon.com/dp/B096H1K287?smid=A2YD2H3KGK1F4L",
-      image: "/placeholder.svg"
+      image: "/lovable-uploads/1c71ebbf-55a3-4ada-a5c3-098db44cbf48.png"
     },
     {
       name: "Citric Acid Powder",
       description: "Non-GMO, Gluten Free - 1LB",
       brand: "Nutricost",
       link: "https://www.amazon.com/dp/B08NXXMWH7?smid=A2YD2H3KGK1F4L",
-      image: "/placeholder.svg"
+      image: "/lovable-uploads/59262418-bbb5-4eac-97d9-cc4e33bfd23a.png"
     },
     {
       name: "Caffeine Pills",
       description: "100mg Per Serving - 250 Capsules",
       brand: "Nutricost",
       link: "https://www.amazon.com/dp/B01MY5CW7S?smid=A2YD2H3KGK1F4L",
-      image: "/placeholder.svg"
+      image: "/lovable-uploads/3cfd2a58-40bf-4017-8be8-b8633f7cca20.png"
     }
   ];
   
@@ -107,14 +107,11 @@ const ProductRecommendations = () => {
               {basicProducts.map((product, index) => (
                 <Card key={index} className="formula-card overflow-hidden border-2 hover:border-primary/50 transition-all">
                   <div className="h-48 overflow-hidden bg-gray-100 flex items-center justify-center">
-                    <div className="w-full h-full flex flex-col items-center justify-center p-4 text-center">
-                      <img 
-                        src={product.image} 
-                        alt={product.name}
-                        className="w-24 h-24 object-contain mb-2 opacity-40"
-                      />
-                      <span className="text-sm font-medium text-gray-500">{product.name}</span>
-                    </div>
+                    <img 
+                      src={product.image} 
+                      alt={product.name}
+                      className="h-full object-contain p-3"
+                    />
                   </div>
                   <CardContent className="p-4">
                     <h3 className="font-bold text-lg">{product.name}</h3>
