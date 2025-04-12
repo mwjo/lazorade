@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { 
   Card, 
@@ -183,9 +182,9 @@ const FormulaResult: React.FC<FormulaResultProps> = ({ formula, isMetric, isAdva
           <div className="pt-4 border-t mt-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="text-center p-2 bg-muted rounded-md">
-                <div className="text-sm text-muted-foreground">Ride Time</div>
+                <div className="text-sm text-muted-foreground">Bottles Needed</div>
                 <div className="text-xl font-semibold">
-                  {totalRideTime} {isMetric ? "hours" : "hours"}
+                  {bottlesNeeded}
                 </div>
               </div>
               <div className="text-center p-2 bg-muted rounded-md">
@@ -375,8 +374,8 @@ const FormulaResult: React.FC<FormulaResultProps> = ({ formula, isMetric, isAdva
               <div className="pt-2 border-t mt-2">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="text-center p-2 bg-muted rounded-md">
-                    <div className="text-sm text-muted-foreground">Ride Time</div>
-                    <div className="text-xl font-semibold">{totalRideTime} hours</div>
+                    <div className="text-sm text-muted-foreground">Bottles Needed</div>
+                    <div className="text-xl font-semibold">{bottlesNeeded}</div>
                   </div>
                   <div className="text-center p-2 bg-muted rounded-md">
                     <div className="text-sm text-muted-foreground">Total Calories</div>
